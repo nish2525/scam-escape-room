@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Scam Escape Room - SCAM HUNTER (v2)</title>
-<meta name="version" content="v2-scam-hunter">
+<meta name="version" content="v3-i18n">
 <style>
 :root{
   --bg:#1e1e1e; --panel:#2c2c2c; --ink:#1b1f24; --muted:#6b7280; --line:#e5e7eb;
@@ -219,6 +219,18 @@ button{font:inherit;cursor:pointer}
 .final .door{width:110px;height:140px}
 .rowbtn{display:flex;gap:8px}.rowbtn .btn{margin-top:0}
 .tips{font-size:13px;color:#d1fae5;margin-top:6px}
+.lang-zh,.lang-zh button{font-family:-apple-system,"PingFang SC","Noto Sans SC","Noto Sans CJK SC","Microsoft YaHei","Source Han Sans SC",sans-serif}
+.lang-lo,.lang-lo button{font-family:"Noto Sans Lao","Noto Sans Lao UI","Phetsarath OT","Lao UI","Saysettha OT",-apple-system,sans-serif;line-height:1.5}
+[lang=zh-Hans]{font-family:"PingFang SC","Noto Sans SC","Noto Sans CJK SC","Microsoft YaHei",sans-serif}
+[lang=lo]{font-family:"Noto Sans Lao","Phetsarath OT","Lao UI",sans-serif}
+.found:after{content:attr(data-flag)!important}
+.langs{display:flex;flex-direction:column;gap:14px}
+.langbtn{background:#fff;color:#111827;font-size:26px;padding:20px;display:flex;align-items:center;justify-content:center;gap:14px;border-radius:20px;box-shadow:0 6px 0 rgba(0,0,0,.25)}
+.langbtn .fl{font-size:30px}
+.langswitch{position:absolute;top:58px;right:18px;background:rgba(255,255,255,.15);color:#fff;border:0;border-radius:20px;padding:7px 12px;font-size:14px;font-weight:700;z-index:3}
+.lang-lo .start h1{font-size:32px;line-height:1.25}
+.lang-lo .bubble,.lang-lo .card,.lang-lo .choice{line-height:1.5}
+.lang-lo .slot{line-height:1}
 </style>
 </head>
 <body>
@@ -251,40 +263,339 @@ button{font:inherit;cursor:pointer}
 <script>
 (function(){
 "use strict";
-var VERSION="v2-scam-hunter";
+var $=function(id){return document.getElementById(id)};
+var I18N={
+en:{
+"lang.name":"English","n.noy":"Noy","n.lin":"Lin",
+"ui.restartTop":"Restart","ui.lang":"Language",
+"ui.start.h1":"Scam<br><span>Escape</span> Room",
+"ui.start.p":"Ten rooms. Ten scams. Every answer sounds OK. Only one is really safe.",
+"ui.rule1":"Escape 10 rooms to win 10 code letters.","ui.rule2":"Some rooms have two steps or red flags to find.","ui.rule3":"Wrong answer: +20 seconds and a strike.","ui.rule4":"3 strikes and the room starts again.","ui.rule5":"Hints help, but cost 30 seconds.",
+"ui.startBtn":"Start the timer","ui.hintBtn":"Hint +30s","ui.hintTitle":"Hint","ui.hintOk":"Got it (+30s)",
+"ui.room":"Room {n}/10","ui.exit":"Exit","ui.flagsFound":"Red flags found","ui.redFlag":"RED FLAG",
+"ui.safe":"Safe","ui.scam":"Scam","ui.msgOf":"Message {i} of {n}","ui.okSafe":"Correct, it's safe.","ui.okScam":"Correct, it's a scam.","ui.harder":"Good! Now a harder step.",
+"ui.scammed":"You got scammed!","ui.notFlag":"Not a red flag!","ui.wasReal":"That one was real!","ui.lost":"You lost: {x}","ui.why":"Why?",
+"ui.strike":"Strike {n} of 3 (+20 seconds)","ui.strike3":"Strike 3 of 3 - the room starts again","ui.try":"Try again","ui.restartRoom":"Start the room again",
+"ui.cleared":"Room {n} cleared!","ui.foundLetter":"You found a code letter","ui.next":"Next room","ui.toExit":"Go to the exit door",
+"ui.exitTitle":"The Exit Door","ui.exitInstr":"Put your 10 letters in order. Two words: 4 + 6 letters.","ui.exitClue":"Spell the English words <b>SCAM HUNTER</b>. That is what you are now!",
+"ui.undo":"Undo","ui.clear":"Clear","ui.locked":"The door stays locked. <b>+20s</b>. Try another order.","ui.exitHint":"It starts with <b>SCAM</b>. The second word is a person who looks for something: <b>HUNTER</b>.",
+"ui.escaped":"You escaped!","ui.totalTime":"total time","ui.mistakes":"mistakes","ui.hintsUsed":"hints used",
+"ui.gold":"GOLD Scam Hunter","ui.silver":"SILVER Scam Spotter","ui.bronze":"BRONZE Scam Survivor",
+"ui.pauseTitle":"How to stay safe - PAUSE","ui.tip1":"Never share your OTP or password.","ui.tip2":"Pay only when you see the item.","ui.tip3":"Too good to be true? It is a scam.","ui.tip4":"Check the web address letter by letter.","ui.tip5":"Check in the official app, not the link.","ui.again":"Play again","ui.step":"step {n}",
+"r1.name":"Bank SMS and OTP","r1.lost":"4,800,000 kip","r1.learn":"<b>Never share your OTP.</b> Open the bank app yourself or call the number on your card. If your phone suddenly loses signal, your SIM may have been swapped. Call your bank fast.",
+"r1.sub":"Text message - Today 06:58","r1.meta":"Today 06:58",
+"r1.m1":"MekongStar Bank: New login from Samsung A15 in Bangkok. Not you? Secure your account within 10 minutes: mekongstar-secure.cc/verify","r1.m2":"Or call our 24h team: +856 20 7781 4402",
+"r1s1t":"A text arrives at 06:58. <b>What do you do first?</b>","r1s1h":"Links and phone numbers <b>inside</b> a scary message can belong to the scammer. Where can you check safely?",
+"r1s1o1":"Open the MekongStar app myself and check my account","r1s1o2":"Call the 24h number in the message to check it is real","r1s1o3":"Tap the link to look, but don't type my password yet","r1s1o4":"Reply STOP so the bank stops sending me these texts",
+"r1s1w2":"The number in the message goes to the scammer. They will sound friendly and professional. Use the number on your card or the official app.","r1s1w3":"Even opening a fake link tells the scammer you are active and some links install bad apps. Never use the link.","r1s1w4":"Replying tells the scammer your number is real and active. You get more scams, not fewer.",
+"r1.caller":"MekongStar Security","r1.oncall":"on call 00:42",
+"r1.m3":"Hello, this is Mr Khamla from MekongStar security. I can see your name and the last four card numbers: 7714.","r1.m4":"Someone is moving your money right now. I sent a 6-digit code to cancel it. Please read it to me quickly.",
+"r1s2t":"Ten minutes later your phone rings. <b>What do you do now?</b>","r1s2h":"The caller knows some of your details. Does that prove it is the bank? Who really needs that code?",
+"r1s2o1":"Hang up and call the number on the back of my card","r1s2o2":"Read out only the first three numbers of the code","r1s2o3":"Ask him to tell me my full account number first","r1s2o4":"Give the code, because he already knows my details",
+"r1s2w2":"Half a code is still dangerous and the caller can keep pushing. Bank staff never ask for any part of an OTP.","r1s2w3":"Scammers often have stolen details from data leaks. Knowing your number does not prove anything. Hang up and call the bank yourself.","r1s2w4":"Knowing your name or card digits is easy for scammers. The OTP is the key to your money. Never share it.",
+"r2.name":"A hacked friend asks for money","r2.lost":"800,000 kip","r2.learn":"<b>Check with a real call or face to face.</b> A hacked account can copy your friend's style and read old chats.",
+"ui.online":"online","ui.typing":"typing...","r2.meta":"Today 21:14",
+"r2s1t":"Your friend Noy messages you. <b>Tap ALL the red flags.</b> Don't tap normal messages.","r2s1h":"Look for three things: who gets the money, why Noy can't call and how fast it must happen.",
+"r2f1":"Hey!! are you awake?","r2f2":"That football match on Sunday was so good haha","r2f3":"Please send 800,000 kip to my cousin's account. Name: K. Vongsa","r2f4":"I can't talk on the phone right now, I'm in a meeting","r2f5":"Please do it in the next 10 minutes!!","r2f6":"Thank you, I'll see you at school",
+"r2n":"That message is normal. A hacker can copy it from old chats, but it is not a warning sign on its own.",
+"r2.m1":"Please!! It's an emergency. I will pay you back tomorrow, promise",
+"r2s2t":"You found the red flags. <b>What is the safest next step?</b>","r2s2h":"Which check can a hacker NOT fake from inside Noy's account?",
+"r2s2o1":"Call Noy on her usual number or ask her face to face","r2s2o2":"Ask a question in the chat that only Noy would know","r2s2o3":"Send a small amount now and the rest after she replies","r2s2o4":"Ask her to send a voice message to prove it is her",
+"r2s2w2":"The hacker can scroll up and read years of old messages. Use a different way to reach Noy, like a phone call.","r2s2w3":"Any money sent to a scammer is gone. A small test only shows them you will pay.","r2s2w4":"Old voice notes can be forwarded and AI can copy voices. Call her on her usual number instead.",
+"r3.name":"Fake shop deposit","r3.lost":"570,000 kip","r3.learn":"<b>Pay only when you see the item.</b> A very low price plus deposit first plus a different account name = scam.",
+"r3.sub":"Page created 6 days ago - 12.4K likes","r3.nocomments":"Comments are turned off",
+"r3.m1":"Only 2 left! Pay 30% deposit and we send tomorrow.","r3.m2":"Account name: S. Phommachanh (my manager). Send the slip here.",
+"r3s1t":"You want a cheap phone. The seller wants a deposit. <b>Choose your reply.</b>","r3s1h":"Photos and likes are easy to fake. When is the only safe moment to pay?",
+"r3s1o1":"I'll pay only when I see and test the phone in person","r3s1o2":"Send me more photos of the phone first, then I'll pay","r3s1o3":"The page has 12,000 likes, so the deposit is probably fine","r3s1o4":"I'll pay half now and half when the phone arrives",
+"r3s1w2":"Scammers copy photos from real shops. More photos prove nothing. Pay only when you have the item in your hand.","r3s1w3":"Likes can be bought and this page is only 6 days old. Comments are off so buyers can't warn you.","r3s1w4":"If the phone never comes, the first half is gone. A real shop lets you pay on delivery or in person.",
+"r4.name":"Prize and lookalike link","r4.lost":"50,000 kip and your details","r4.learn":"<b>Check the web address letter by letter.</b> 0 for o, extra words or a strange ending like .win or .cc are warning signs.",
+"r4.bday":"Dokchampa Mall 10th Birthday","r4.won":"You WON a Nova X12!","r4.pay":"Pay 50,000 kip delivery and share with 5 groups to claim. 04:59 left",
+"r4s1t":"A pop-up says you won. <b>What do you do?</b>","r4s1h":"Did you enter a competition? Real prizes never cost money to receive.",
+"r4s1o1":"Close it and check the official Dokchampa page myself","r4s1o2":"Share it with the 5 groups, but don't pay anything","r4s1o3":"Pay the fee, because 50,000 kip is tiny for a phone","r4s1o4":"Send my home address only, not my bank details",
+"r4s1w2":"Sharing spreads the scam to your friends and family. Close it and check the official page.","r4s1w3":"Real prizes are free. The 'fee' is the scam and they will ask for more fees next.","r4s1w4":"Your address and name help scammers with the next trick. Never send details to a prize you did not enter.",
+"r4.c1":"<b>Real or fake?</b> Four results look the same. Only one is the real Dokchampa website. Read each address letter by letter.","r4.c2":"Tip: the real name is <b>dokchampa</b> and Lao sites often end in <b>.la</b>",
+"r4s2t":"Compare: you search for Dokchampa's news page. <b>Which address is the REAL one?</b>","r4s2h":"Look for a zero instead of the letter o, extra words and the very last part of the address.",
+"r4s2w2":"Look again: that is a zero (0), not the letter o.","r4s2w3":"The address really ends in .win. Everything before it is just decoration.","r4s2w4":"A dash and .cc at the end: this is a different website, not dokchampa.la.",
+"r5.name":"Parcel messages: safe or scam?","r5.lost":"Your card details","r5.learn":"<b>Check in the official app, not the link.</b> Some messages are real. Real ones don't ask you to pay through a link.",
+"r5s1t":"Your inbox. <b>Safe or scam?</b> Some are real. You are waiting for a parcel from Thailand.","r5s1h":"Real messages give information. Scam messages want you to tap a link and pay. Check the spelling of the sender and the link.",
+"r5i1":"Your parcel LA2290 will arrive today 14:00-17:00. Track it in the KhongExpress app.","r5y1":"This one was real. It gives information, has no link and asks for nothing.",
+"r5i2":"Parcel LA2290 is on hold. Pay 9,000 kip customs fee: khongexpres-fee.cc","r5y2":"Sender spelt wrong, a small fee and a .cc link. Classic parcel scam.",
+"r5i3":"Your top-up of 50,000 kip was successful. New balance: 62,500 kip.","r5c3":"You topped up your phone 2 minutes ago.","r5y3":"This was real. You just topped up, it has no link and asks for nothing.",
+"r5i4":"We missed you. Choose a new delivery time here (fee 5,000 kip): khongexpress-redeliver.top","r5y4":"Even with the right name, the link ends in .top and asks for a fee. Check in the official app.",
+"r5i5":"Your OTP is 482913. Do not share this code with anyone, even bank staff.","r5c5":"You are logging in to your bank app right now.","r5y5":"This was real. You asked for the code yourself. Just don't share it with anyone.",
+"r6.name":"Fake job offer","r6.lost":"Your passport details","r6.learn":"<b>Too good to be true? It is a scam.</b> Some fake jobs take people across borders and force them to work in scam centres. Always check the company with a trusted adult.",
+"r6.sub":"channel - 3,201 members",
+"r6s1t":"A job advert in a chat group. <b>Tap ALL 4 red flags.</b> Don't tap normal details.","r6s1h":"Think about the pay, the interview, your documents and the company itself.",
+"r6f1":"US$1,800 a month for typing work. No experience needed!","r6f2":"Basic English is OK. We give training.","r6f3":"Interview by chat only, today. No video.","r6f4":"Work Monday to Friday, 8 hours a day.","r6f5":"Send a photo of your passport to book your flight.","r6f6":"Company: Golden Asia Group. Office address and website coming soon.",
+"r6n":"That detail is normal for many real jobs. It is not a red flag on its own.",
+"r6.m1":"Apply now! Only 3 places left. We pay the flight and hotel.",
+"r6s2t":"Your cousin wants to apply. <b>What is the best advice?</b>","r6s2h":"A chat contract or a friend at the interview doesn't make the job real. Who can check it properly?",
+"r6s2o1":"Ask a trusted adult to check the company and job first","r6s2o2":"Go to the interview, but take a friend along for safety","r6s2o3":"Send a copy of the ID card only, not the real passport","r6s2o4":"Apply only if they send a written contract by chat",
+"r6s2w2":"Some people who go never get to come home. Check the company before going anywhere.","r6s2w3":"Copies of your ID can still be used for fraud. Don't send any documents until the job is checked.","r6s2w4":"A fake contract takes two minutes to make. It does not prove the company is real.",
+"r7.name":"Romance and investment","r7.lost":"US$1,356","r7.learn":"<b>Never invest because someone online tells you to.</b> Fake apps show big profits, then ask for a 'tax' or fee to withdraw.",
+"r7.d1":"Day 1","r7.d19":"Day 19","r7.m1":"Sorry, wrong number! But you seem nice :)","r7.m2":"My uncle taught me crypto trading. I made 30% this week! Look at my screenshot.","r7.m3":"Put in 500,000 kip with me. It's 100% safe, I promise.",
+"r7s1t":"You met Lin online 3 weeks ago. Lin never does video calls. <b>What do you reply?</b>","r7s1h":"Screenshots, small tests and promises can all be faked. What is the only safe answer?",
+"r7s1o1":"No. I never invest because someone online tells me to","r7s1o2":"I'll try 100,000 kip first to test if it really works","r7s1o3":"Only if you send me more screenshots of your profits","r7s1o4":"Only if we do a quick video call together first",
+"r7s1w2":"Scam apps often let you win small amounts at first so you trust them. Then you put in more.","r7s1w3":"Screenshots are very easy to fake. They prove nothing.","r7s1w4":"Scammers can use deepfake video or a different person. Don't invest at all.",
+"r7.bal":"StarCoin Pro - balance","r7.blocked":"Withdraw blocked: pay 15% tax (US$1,356) first","r7.m4":"Support: Pay the tax today or your account will be frozen.",
+"r7s2t":"Your friend Toui already invested. <b>What should Toui do now?</b>","r7s2h":"Is that balance real money? Who invented the 'tax'?",
+"r7s2o1":"Stop paying, save screenshots and tell an adult and the police","r7s2o2":"Pay the tax, because it is small next to the profit","r7s2o3":"Ask support to take the tax out of the profit instead","r7s2o4":"Pay half the tax now and promise the rest next week",
+"r7s2w2":"The balance is fake. After the tax there will be another fee, then another.","r7s2w3":"Support is the scammer. They will always say no and ask for new money.","r7s2w4":"Any payment goes to the scammer. Stop paying and report it.",
+"r8.name":"Fake loan app","r8.lost":"Your contacts and photos","r8.learn":"<b>Get apps only from the official store.</b> Loan apps that want your contacts and photos can use them to shame and threaten you.",
+"r8.sub":"Download page",
+"r8s1t":"Toui finds a loan app. <b>Tap ALL 4 red flags.</b> Don't tap normal details.","r8s1h":"Look at speed, checks, where the app comes from and fees.",
+"r8f1":"Get 3 million kip in 5 minutes!","r8f2":"Available in Lao and English.","r8f3":"No ID, no checks, everyone is approved.","r8f4":"Download QuickKip.apk from this link.","r8f5":"App size: 24 MB.","r8f6":"A 20% service fee is taken before you get the money.",
+"r8n":"That detail is normal. Look for the risky parts.",
+"r8.perm":"Allow QuickKip to access your contacts, photos and location?","r8.need":"Needed to check your loan.",
+"r8s2t":"Toui installed it anyway and this pops up. <b>What should he tap?</b>","r8s2h":"A small permission is still a permission. Is the app safe to keep at all?",
+"r8s2o1":"Don't allow, delete the app and tell an adult","r8s2o2":"Allow only while using the app, then switch it off","r8s2o3":"Allow contacts, but don't allow photos or location","r8s2o4":"Allow it now and change it later in Settings",
+"r8s2w2":"A few seconds is enough to copy all your contacts and photos.","r8s2w3":"With your contacts they can message your family and friends to shame you.","r8s2w4":"By then the data is already on their server. Deleting later does not bring it back.",
+"r9.name":"AI voice call from 'Mum'","r9.lost":"2,000,000 kip","r9.learn":"<b>A voice can be copied.</b> Agree a family code word and always hang up and call back on the usual number.",
+"r9.oncall1":"on call 00:31","r9.oncall2":"on call 01:12",
+"r9.m1":"It's Mum! I had a small accident and lost my phone. This is a nurse's phone.","r9.m2":"Please send 2 million kip to this account now. Don't tell Dad, he'll be angry.",
+"r9s1t":"An unknown number calls. It sounds exactly like your mum. <b>What do you do?</b>","r9s1h":"Your family has a secret code word. Video and stories can be faked.",
+"r9s1o1":"Ask her to say our family code word","r9s1o2":"Ask her to turn on video so I can see her","r9s1o3":"Ask which hospital she is in and the address","r9s1o4":"Send half now and the rest when I see her",
+"r9s1w2":"Deepfake video can copy a face too. Use a code word or call back on her usual number.","r9s1w3":"Scammers have a story ready. Details don't prove who is calling.","r9s1w4":"Any money sent to a scammer is lost. Check first with the code word.",
+"r9.m3":"I can't remember the code, I'm so scared! Please just send it, quickly!",
+"r9s2t":"She says: 'I forgot it, I'm too scared!' <b>What now?</b>","r9s2h":"Which number do YOU know is really Mum's?",
+"r9s2o1":"Hang up and call Mum on her usual number","r9s2o2":"Call this number back to check it is really her","r9s2o3":"Ask her to send a photo of the accident first","r9s2o4":"Send it, because she sounds really frightened",
+"r9s2w2":"That number belongs to the scammer. Use the number you already have saved for Mum.","r9s2w3":"Photos are easy to fake or steal. Call her real number.","r9s2w4":"Fear is the trick. AI can copy her voice and her feelings. Hang up and call back.",
+"r10.name":"Fake police call","r10.lost":"5,000,000 kip","r10.learn":"<b>Real police never ask for money on the phone.</b> Hang up and call 1191 yourself. Never install an app for a caller.",
+"r10.badge":"POLICE 4471","r10.vc":"Officer Somsak - Video call",
+"r10s1t":"A video call from 'police'. <b>Tap ALL 3 red flags.</b> Don't tap normal lines.","r10s1h":"Look for money, secrets and apps.",
+"r10f1":"This is Officer Somsak from the police.","r10f2":"A SIM card in your name was used in a crime.","r10f3":"Pay a 5 million kip guarantee today or we arrest you.","r10f4":"Don't tell your family. This case is secret.","r10f5":"Install SafeCheck so we can check your phone.","r10f6":"You can write down my badge number: 4471.",
+"r10n":"That line alone is not the danger. Look for what they want you to do.",
+"r10.m1":"You have 30 minutes. Do you understand?",
+"r10s2t":"Final choice. <b>What do you do?</b>","r10s2h":"Real police don't do any of these on the phone. Who can you call yourself?",
+"r10s2o1":"Hang up and call the police myself on 1191","r10s2o2":"Write down the badge number, then pay the guarantee","r10s2o3":"Ask them to email the arrest warrant to me first","r10s2o4":"Install the app, but don't open my bank app after",
+"r10s2w2":"Badges and uniforms can be fake. Real police never ask for money on a call.","r10s2w3":"Fake warrants are easy to make. Hang up and call 1191 yourself.","r10s2w4":"A remote-control app can see everything on your phone. Never install an app for a caller."
+}
+,
+zh:{
+"lang.name":"中文","n.noy":"Noy","n.lin":"Lin",
+"ui.restartTop":"重新开始","ui.lang":"语言",
+"ui.start.h1":"诈骗<br><span>密室</span>逃脱",
+"ui.start.p":"十个房间，十种骗局。每个答案听起来都不错，但只有一个真正安全。",
+"ui.rule1":"逃出 10 个房间，赢得 10 个密码字母。","ui.rule2":"有些房间有两步，或者要找出危险信号。","ui.rule3":"答错：加 20 秒，记一次失误。","ui.rule4":"失误 3 次，这个房间重新开始。","ui.rule5":"提示有用，但要加 30 秒。",
+"ui.startBtn":"开始计时","ui.hintBtn":"提示 +30秒","ui.hintTitle":"提示","ui.hintOk":"知道了 (+30秒)",
+"ui.room":"房间 {n}/10","ui.exit":"出口","ui.flagsFound":"已找到的危险信号","ui.redFlag":"危险信号",
+"ui.safe":"安全","ui.scam":"诈骗","ui.msgOf":"第 {i} 条，共 {n} 条","ui.okSafe":"对，这条是安全的。","ui.okScam":"对，这是诈骗。","ui.harder":"很好！下一步更难。",
+"ui.scammed":"你被骗了！","ui.notFlag":"这不是危险信号！","ui.wasReal":"这条是真的！","ui.lost":"你损失了：{x}","ui.why":"为什么？",
+"ui.strike":"失误 {n}/3（+20 秒）","ui.strike3":"失误 3/3 - 房间重新开始","ui.try":"再试一次","ui.restartRoom":"重新开始这个房间",
+"ui.cleared":"房间 {n} 通过！","ui.foundLetter":"你找到了一个密码字母","ui.next":"下一个房间","ui.toExit":"去出口大门",
+"ui.exitTitle":"出口大门","ui.exitInstr":"把 10 个字母按顺序排好。两个英文单词：4 个字母 + 6 个字母。","ui.exitClue":"请拼出英文 <b>SCAM HUNTER</b>（骗局猎人）。这就是现在的你！",
+"ui.undo":"撤销","ui.clear":"清空","ui.locked":"门还是锁着。<b>+20秒</b>。换个顺序试试。","ui.exitHint":"第一个词是 <b>SCAM</b>，第二个词是 <b>HUNTER</b>（猎人）。",
+"ui.escaped":"你逃出来了！","ui.totalTime":"总用时","ui.mistakes":"失误","ui.hintsUsed":"使用提示",
+"ui.gold":"金牌 骗局猎人","ui.silver":"银牌 骗局侦察员","ui.bronze":"铜牌 骗局幸存者",
+"ui.pauseTitle":"怎样保护自己 - PAUSE","ui.tip1":"永远不要分享你的验证码 (OTP) 或密码。","ui.tip2":"看到东西以后再付钱。","ui.tip3":"好得不像真的？那就是骗局。","ui.tip4":"一个字母一个字母地检查网址。","ui.tip5":"在官方应用里查看，不要点链接。","ui.again":"再玩一次","ui.step":"第 {n} 步",
+"r1.name":"银行短信和验证码","r1.lost":"4,800,000 基普","r1.learn":"<b>永远不要分享验证码。</b>自己打开银行应用，或拨打银行卡背面的电话。如果手机突然没有信号，你的 SIM 卡可能被人换了。马上联系银行。",
+"r1.sub":"短信 - 今天 06:58","r1.meta":"今天 06:58",
+"r1.m1":"MekongStar Bank：有人在曼谷用 Samsung A15 登录你的账户。不是你？请在 10 分钟内保护账户：mekongstar-secure.cc/verify","r1.m2":"或拨打我们的 24 小时热线：+856 20 7781 4402",
+"r1s1t":"早上 06:58 你收到一条短信。<b>你先做什么？</b>","r1s1h":"吓人短信<b>里面</b>的链接和电话可能属于骗子。在哪里检查才安全？",
+"r1s1o1":"自己打开 MekongStar 应用，查看我的账户","r1s1o2":"打短信里的 24 小时电话，问问是不是真的","r1s1o3":"点开链接看看，但先不输入密码","r1s1o4":"回复 STOP，让银行不要再发这种短信",
+"r1s1w2":"短信里的电话会打到骗子那里。他们听起来很友好、很专业。请用银行卡背面的电话或官方应用。","r1s1w3":"只要打开假链接，骗子就知道你的号码在用，有些链接还会安装坏软件。永远不要点链接。","r1s1w4":"回复会告诉骗子你的号码是真的、在使用。你只会收到更多骗局。",
+"r1.caller":"MekongStar 安全部","r1.oncall":"通话中 00:42",
+"r1.m3":"你好，我是 MekongStar 安全部的 Khamla 先生。我能看到你的名字和银行卡最后四位：7714。","r1.m4":"现在有人正在转走你的钱。我给你发了一个 6 位数验证码来取消，请快点读给我听。",
+"r1s2t":"十分钟后你的电话响了。<b>现在怎么办？</b>","r1s2h":"对方知道你的一些信息。这能证明他是银行吗？谁真的需要那个验证码？",
+"r1s2o1":"挂断电话，拨打我银行卡背面的号码","r1s2o2":"只读出验证码的前三个数字","r1s2o3":"先让他说出我的完整账号","r1s2o4":"给他验证码，因为他已经知道我的信息",
+"r1s2w2":"半个验证码也很危险，而且对方会继续逼你。银行员工从来不会要验证码的任何部分。","r1s2w3":"骗子常常从数据泄露中拿到别人的信息。知道你的账号什么也证明不了。挂断，自己打给银行。","r1s2w4":"骗子很容易知道你的名字或卡号。验证码是打开你钱包的钥匙。永远不要分享。",
+"r2.name":"被盗号的朋友向你借钱","r2.lost":"800,000 基普","r2.learn":"<b>打电话或当面确认。</b>被盗的账号可以模仿你朋友说话的方式，还能看到以前的聊天记录。",
+"ui.online":"在线","ui.typing":"正在输入...","r2.meta":"今天 21:14",
+"r2s1t":"你的朋友 Noy 给你发消息。<b>点出所有危险信号。</b>不要点正常的消息。","r2s1h":"找三件事：钱给谁、为什么 Noy 不能打电话、要多快完成。",
+"r2f1":"嘿！！你醒着吗？","r2f2":"星期天那场足球赛太好看了哈哈","r2f3":"请转 800,000 基普到我表哥的账户。名字：K. Vongsa","r2f4":"我现在不能打电话，我在开会","r2f5":"请在 10 分钟内转！！","r2f6":"谢谢你，学校见",
+"r2n":"这条消息很正常。骗子可以从旧聊天里模仿，但它本身不是危险信号。",
+"r2.m1":"求你了！！很急。我明天就还你，保证",
+"r2s2t":"你找到了危险信号。<b>下一步最安全的做法是什么？</b>","r2s2h":"哪种确认方法是骗子在 Noy 的账号里没法假装的？",
+"r2s2o1":"打 Noy 平时的电话，或者当面问她","r2s2o2":"在聊天里问一个只有 Noy 知道的问题","r2s2o3":"先转一点钱，她回复后再转剩下的","r2s2o4":"让她发一条语音，证明是她本人",
+"r2s2w2":"骗子可以往上翻，看到好几年的聊天记录。换一种方式联系 Noy，比如打电话。","r2s2w3":"转给骗子的钱都拿不回来。转一点试试，只会让他们知道你会付钱。","r2s2w4":"旧语音可以被转发，AI 也能模仿声音。还是打她平时的电话吧。",
+"r3.name":"假网店定金","r3.lost":"570,000 基普","r3.learn":"<b>看到东西以后再付钱。</b>价格特别低 + 先付定金 + 账户名字不一样 = 骗局。",
+"r3.sub":"主页创建于 6 天前 - 1.24 万个赞","r3.nocomments":"评论已关闭",
+"r3.m1":"只剩 2 部！付 30% 定金，明天发货。","r3.m2":"账户名：S. Phommachanh（我的经理）。把转账截图发到这里。",
+"r3s1t":"你想买一部便宜手机，卖家要你先付定金。<b>选择你的回复。</b>","r3s1h":"照片和点赞都很容易造假。什么时候付钱才安全？",
+"r3s1o1":"我要当面看到并试过手机才付钱","r3s1o2":"先多发几张手机照片，然后我再付钱","r3s1o3":"这个主页有 12,000 个赞，付定金应该没问题","r3s1o4":"我现在付一半，手机到了再付另一半",
+"r3s1w2":"骗子会从真店里复制照片。照片再多也证明不了什么。东西拿到手才付钱。","r3s1w3":"点赞可以买，而且这个主页才建了 6 天。评论关了，买家没法提醒你。","r3s1w4":"如果手机一直不来，那一半钱就没了。真正的商店会让你货到付款或当面付款。",
+"r4.name":"中奖和山寨网址","r4.lost":"50,000 基普和你的个人信息","r4.learn":"<b>一个字母一个字母地检查网址。</b>用 0 代替 o、多出来的词、奇怪的结尾比如 .win 或 .cc，都是危险信号。",
+"r4.bday":"Dokchampa 商场 10 周年庆","r4.won":"你赢了一部 Nova X12！","r4.pay":"付 50,000 基普运费并分享到 5 个群即可领奖。剩余 04:59",
+"r4s1t":"弹窗说你中奖了。<b>你怎么做？</b>","r4s1h":"你参加过抽奖吗？真的奖品不需要付钱领取。",
+"r4s1o1":"关掉它，自己去看 Dokchampa 的官方主页","r4s1o2":"分享到 5 个群，但一分钱也不付","r4s1o3":"付运费，因为 50,000 基普换一部手机很划算","r4s1o4":"只发我家地址，不发银行信息",
+"r4s1w2":"分享会把骗局传给你的朋友和家人。关掉它，去看官方主页。","r4s1w3":"真的奖品是免费的。这笔“运费”就是骗局，接下来还会要更多钱。","r4s1w4":"你的地址和名字会帮骗子进行下一个骗局。没参加过的抽奖，永远不要发个人信息。",
+"r4.c1":"<b>真的还是假的？</b>四个结果看起来一样，只有一个是真正的 Dokchampa 网站。一个字母一个字母地读网址。","r4.c2":"提示：真正的名字是 <b>dokchampa</b>，老挝网站常常以 <b>.la</b> 结尾",
+"r4s2t":"比一比：你搜索 Dokchampa 的新闻页面。<b>哪个网址是真的？</b>","r4s2h":"看看有没有用数字 0 代替字母 o、多出来的词，还有网址最后的部分。",
+"r4s2w2":"再看一遍：那是数字 0，不是字母 o。","r4s2w3":"这个网址真正的结尾是 .win，前面的部分只是装饰。","r4s2w4":"有横线，而且以 .cc 结尾：这是另一个网站，不是 dokchampa.la。",
+"r5.name":"快递短信：安全还是诈骗？","r5.lost":"你的银行卡信息","r5.learn":"<b>在官方应用里查看，不要点链接。</b>有些短信是真的。真的短信不会让你通过链接付钱。",
+"r5s1t":"你的收件箱。<b>安全还是诈骗？</b>有些是真的。你正在等一个从泰国寄来的包裹。","r5s1h":"真的短信只给你信息。诈骗短信要你点链接付钱。检查发件人和链接的拼写。",
+"r5i1":"您的包裹 LA2290 将于今天 14:00-17:00 送达。请在 KhongExpress 应用中查看。","r5y1":"这条是真的。它只给信息，没有链接，也不要你做什么。",
+"r5i2":"包裹 LA2290 被扣留。请支付 9,000 基普关税：khongexpres-fee.cc","r5y2":"发件人拼错了，要一点小费用，还有 .cc 链接。典型的快递诈骗。",
+"r5i3":"您已成功充值 50,000 基普。当前余额：62,500 基普。","r5c3":"你 2 分钟前刚给手机充了值。","r5y3":"这条是真的。你刚充了值，没有链接，也不要你做什么。",
+"r5i4":"我们没能送到。请在这里选择新的送货时间（费用 5,000 基普）：khongexpress-redeliver.top","r5y4":"就算名字对，链接却以 .top 结尾，还要收费。请在官方应用里查看。",
+"r5i5":"您的验证码是 482913。请勿将此验证码告诉任何人，包括银行员工。","r5c5":"你现在正在登录银行应用。","r5y5":"这条是真的。验证码是你自己申请的。只是不要告诉任何人。",
+"r6.name":"假工作","r6.lost":"你的护照信息","r6.learn":"<b>好得不像真的？那就是骗局。</b>有些假工作会把人带到国外，逼他们在诈骗中心工作。一定要请可信的大人帮你查一下公司。",
+"r6.sub":"频道 - 3,201 名成员",
+"r6s1t":"聊天群里的招聘广告。<b>点出全部 4 个危险信号。</b>不要点正常的内容。","r6s1h":"想一想工资、面试、你的证件和公司本身。",
+"r6f1":"打字工作，每月 1,800 美元。不需要经验！","r6f2":"会一点英语就行。我们提供培训。","r6f3":"只在聊天里面试，就今天。不视频。","r6f4":"周一到周五上班，每天 8 小时。","r6f5":"发一张护照照片给我们订机票。","r6f6":"公司：Golden Asia Group。办公地址和网站即将上线。",
+"r6n":"很多真工作也有这一条。它本身不是危险信号。",
+"r6.m1":"马上申请！只剩 3 个名额。我们包机票和酒店。",
+"r6s2t":"你的表哥想申请。<b>最好的建议是什么？</b>","r6s2h":"聊天里的合同或带朋友去面试，都不能证明工作是真的。谁能好好查一查？",
+"r6s2o1":"先请可信的大人查一查这家公司和工作","r6s2o2":"去面试，但带一个朋友一起去比较安全","r6s2o3":"只发身份证复印件，不发真的护照","r6s2o4":"只有他们在聊天里发书面合同才申请",
+"r6s2w2":"有些去了的人再也回不了家。去任何地方之前先查清楚公司。","r6s2w3":"身份证复印件也可能被用来诈骗。工作查清楚之前，什么证件都不要发。","r6s2w4":"做一份假合同只要两分钟。它证明不了公司是真的。",
+"r7.name":"网恋和投资","r7.lost":"1,356 美元","r7.learn":"<b>永远不要因为网上的人叫你投资就投资。</b>假应用会显示很高的收益，然后要你交“税”或手续费才能提现。",
+"r7.d1":"第 1 天","r7.d19":"第 19 天","r7.m1":"不好意思，发错人了！不过你好像人很好 :)","r7.m2":"我叔叔教我炒加密货币。这周我赚了 30%！看我的截图。","r7.m3":"跟我一起投 500,000 基普吧。百分之百安全，我保证。",
+"r7s1t":"你三周前在网上认识了 Lin。Lin 从来不视频通话。<b>你怎么回复？</b>","r7s1h":"截图、小额试试和保证都可以造假。唯一安全的回答是什么？",
+"r7s1o1":"不。我从不因为网上的人叫我投资就投资","r7s1o2":"我先投 100,000 基普，试试是不是真的有效","r7s1o3":"除非你再多发几张赚钱的截图给我","r7s1o4":"除非我们先一起快速视频通话一次",
+"r7s1w2":"诈骗应用一开始常常让你赚一点小钱，让你相信它。然后你就会投更多。","r7s1w3":"截图非常容易造假，什么也证明不了。","r7s1w4":"骗子可以用深度伪造视频或者找别人代替。根本不要投资。",
+"r7.bal":"StarCoin Pro - 余额","r7.blocked":"无法提现：请先支付 15% 的税（1,356 美元）","r7.m4":"客服：今天交税，否则你的账户将被冻结。",
+"r7s2t":"你的朋友 Toui 已经投了钱。<b>Toui 现在应该怎么做？</b>","r7s2h":"那个余额是真钱吗？这个“税”是谁编出来的？",
+"r7s2o1":"不再付钱，保存截图，告诉大人和警察","r7s2o2":"交税，因为跟收益比起来很少","r7s2o3":"让客服直接从收益里扣税","r7s2o4":"现在先交一半税，答应下周交剩下的",
+"r7s2w2":"余额是假的。交完税还会有另一笔费用，然后还有。","r7s2w3":"客服就是骗子。他们总会拒绝，然后要你付新的钱。","r7s2w4":"付的每一分钱都会到骗子手里。停止付款并报警。",
+"r8.name":"假贷款应用","r8.lost":"你的联系人和照片","r8.learn":"<b>只从官方应用商店下载应用。</b>要你联系人和照片的贷款应用，可能会用它们来羞辱和威胁你。",
+"r8.sub":"下载页面",
+"r8s1t":"Toui 找到一个贷款应用。<b>点出全部 4 个危险信号。</b>不要点正常的内容。","r8s1h":"看看速度、审核、应用从哪里下载，还有费用。",
+"r8f1":"5 分钟就能拿到 300 万基普！","r8f2":"有老挝语和英语版本。","r8f3":"不要身份证，不审核，人人都能通过。","r8f4":"从这个链接下载 QuickKip.apk。","r8f5":"应用大小：24 MB。","r8f6":"放款前先扣 20% 的服务费。",
+"r8n":"这一条很正常。找找有风险的部分。",
+"r8.perm":"允许 QuickKip 访问你的联系人、照片和位置吗？","r8.need":"审核贷款需要。",
+"r8s2t":"Toui 还是安装了，然后弹出了这个。<b>他应该点什么？</b>","r8s2h":"小小的权限也是权限。这个应用还能留着吗？",
+"r8s2o1":"不允许，删除应用，告诉大人","r8s2o2":"只在使用时允许，用完再关掉","r8s2o3":"允许联系人，但不允许照片和位置","r8s2o4":"先允许，以后再到设置里改",
+"r8s2w2":"几秒钟就足够复制你所有的联系人和照片。","r8s2w3":"有了你的联系人，他们就能给你的家人和朋友发消息羞辱你。","r8s2w4":"到那时数据已经在他们的服务器上了。之后再删也拿不回来。",
+"r9.name":"“妈妈”的 AI 语音电话","r9.lost":"2,000,000 基普","r9.learn":"<b>声音可以被复制。</b>和家人约定一个暗号，并且一定要挂断，再打平时的号码确认。",
+"r9.oncall1":"通话中 00:31","r9.oncall2":"通话中 01:12",
+"r9.m1":"是妈妈！我出了点小事故，手机丢了。这是护士的手机。","r9.m2":"请马上转 200 万基普到这个账户。别告诉爸爸，他会生气的。",
+"r9s1t":"一个陌生号码打来，声音和你妈妈一模一样。<b>你怎么做？</b>","r9s1h":"你们家有一个秘密暗号。视频和故事都可以造假。",
+"r9s1o1":"让她说出我们家的暗号","r9s1o2":"让她打开视频，让我看看她","r9s1o3":"问她在哪家医院，地址是什么","r9s1o4":"现在先转一半，见到她再转剩下的",
+"r9s1w2":"深度伪造视频也能模仿人脸。用暗号，或者打她平时的号码。","r9s1w3":"骗子早就准备好了故事。细节证明不了是谁在打电话。","r9s1w4":"转给骗子的钱都拿不回来。先用暗号确认。",
+"r9.m3":"我想不起暗号了，我好害怕！求你快点转钱！",
+"r9s2t":"她说：“我忘了，我太害怕了！”<b>现在怎么办？</b>","r9s2h":"哪个号码是你确定属于妈妈的？",
+"r9s2o1":"挂断，打妈妈平时的号码","r9s2o2":"回拨这个号码，确认是不是她","r9s2o3":"先让她发一张事故照片","r9s2o4":"转钱，因为她听起来真的很害怕",
+"r9s2w2":"这个号码是骗子的。用你手机里存好的妈妈的号码。","r9s2w3":"照片很容易造假或偷来。打她真正的号码。","r9s2w4":"恐慌就是骗局。AI 能模仿她的声音和情绪。挂断再打回去。",
+"r10.name":"假警察电话","r10.lost":"5,000,000 基普","r10.learn":"<b>真正的警察从不在电话里要钱。</b>挂断，自己拨打 1191。永远不要因为来电的人叫你就安装应用。",
+"r10.badge":"警察 4471","r10.vc":"Somsak 警官 - 视频通话",
+"r10s1t":"“警察”打来视频电话。<b>点出全部 3 个危险信号。</b>不要点正常的话。","r10s1h":"找找关于钱、秘密和应用的话。",
+"r10f1":"我是警察局的 Somsak 警官。","r10f2":"一张用你名字登记的 SIM 卡被用来犯罪。","r10f3":"今天交 500 万基普保证金，否则我们就逮捕你。","r10f4":"不要告诉你的家人。这个案子是保密的。","r10f5":"安装 SafeCheck，让我们检查你的手机。","r10f6":"你可以记下我的警号：4471。",
+"r10n":"光是这句话不是危险所在。看看他们要你做什么。",
+"r10.m1":"你只有 30 分钟。听明白了吗？",
+"r10s2t":"最后的选择。<b>你怎么做？</b>","r10s2h":"真正的警察不会在电话里做这些事。你可以自己打给谁？",
+"r10s2o1":"挂断，自己拨打 1191 报警","r10s2o2":"记下警号，然后交保证金","r10s2o3":"让他们先把逮捕令发到我的邮箱","r10s2o4":"安装应用，但之后不打开银行应用",
+"r10s2w2":"警徽和制服都可以是假的。真正的警察从不在电话里要钱。","r10s2w3":"假逮捕令很容易做。挂断，自己拨打 1191。","r10s2w4":"远程控制应用能看到你手机上的一切。永远不要为来电的人安装应用。"
+}
+,
+lo:{
+"lang.name":"ລາວ","n.noy":"ນ້ອຍ","n.lin":"ລິນ",
+"ui.restartTop":"ເລີ່ມໃໝ່","ui.lang":"ພາສາ",
+"ui.start.h1":"ຫ້ອງ<span>ໜີ</span><br>ການຫຼອກລວງ",
+"ui.start.p":"ສິບຫ້ອງ. ສິບການຫຼອກລວງ. ທຸກຄຳຕອບຟັງແລ້ວຄືວ່າດີ. ແຕ່ມີພຽງອັນດຽວທີ່ປອດໄພແທ້ໆ.",
+"ui.rule1":"ໜີອອກຈາກ 10 ຫ້ອງ ເພື່ອໄດ້ 10 ຕົວອັກສອນລະຫັດ.","ui.rule2":"ບາງຫ້ອງມີສອງຂັ້ນຕອນ ຫຼື ຕ້ອງຊອກຫາສັນຍານອັນຕະລາຍ.","ui.rule3":"ຕອບຜິດ: ບວກ 20 ວິນາທີ ແລະ ເສຍ 1 ຄັ້ງ.","ui.rule4":"ຜິດ 3 ຄັ້ງ ຫ້ອງນັ້ນຈະເລີ່ມໃໝ່.","ui.rule5":"ຄຳແນະນຳຊ່ວຍໄດ້ ແຕ່ບວກ 30 ວິນາທີ.",
+"ui.startBtn":"ເລີ່ມຈັບເວລາ","ui.hintBtn":"ຄຳແນະນຳ +30ວິ","ui.hintTitle":"ຄຳແນະນຳ","ui.hintOk":"ເຂົ້າໃຈແລ້ວ (+30ວິ)",
+"ui.room":"ຫ້ອງ {n}/10","ui.exit":"ທາງອອກ","ui.flagsFound":"ສັນຍານອັນຕະລາຍທີ່ພົບ","ui.redFlag":"ອັນຕະລາຍ",
+"ui.safe":"ປອດໄພ","ui.scam":"ຫຼອກລວງ","ui.msgOf":"ຂໍ້ຄວາມ {i} ຈາກ {n}","ui.okSafe":"ຖືກແລ້ວ, ອັນນີ້ປອດໄພ.","ui.okScam":"ຖືກແລ້ວ, ອັນນີ້ແມ່ນການຫຼອກລວງ.","ui.harder":"ດີຫຼາຍ! ຂັ້ນຕໍ່ໄປຍາກກວ່າ.",
+"ui.scammed":"ເຈົ້າຖືກຫຼອກແລ້ວ!","ui.notFlag":"ນີ້ບໍ່ແມ່ນສັນຍານອັນຕະລາຍ!","ui.wasReal":"ອັນນີ້ແມ່ນຂອງແທ້!","ui.lost":"ເຈົ້າເສຍ: {x}","ui.why":"ເປັນຫຍັງ?",
+"ui.strike":"ຜິດຄັ້ງທີ {n} ຈາກ 3 (+20 ວິນາທີ)","ui.strike3":"ຜິດຄັ້ງທີ 3 ຈາກ 3 - ຫ້ອງນີ້ເລີ່ມໃໝ່","ui.try":"ລອງອີກຄັ້ງ","ui.restartRoom":"ເລີ່ມຫ້ອງນີ້ໃໝ່",
+"ui.cleared":"ຜ່ານຫ້ອງ {n} ແລ້ວ!","ui.foundLetter":"ເຈົ້າໄດ້ຕົວອັກສອນລະຫັດ 1 ຕົວ","ui.next":"ຫ້ອງຕໍ່ໄປ","ui.toExit":"ໄປປະຕູທາງອອກ",
+"ui.exitTitle":"ປະຕູທາງອອກ","ui.exitInstr":"ລຽງ 10 ຕົວອັກສອນໃຫ້ຖືກລຳດັບ. ສອງຄຳພາສາອັງກິດ: 4 + 6 ຕົວ.","ui.exitClue":"ສະກົດຄຳພາສາອັງກິດ <b>SCAM HUNTER</b> (ນັກລ່າຄົນຫຼອກລວງ). ນັ້ນແມ່ນເຈົ້າໃນຕອນນີ້!",
+"ui.undo":"ຍົກເລີກ","ui.clear":"ລຶບທັງໝົດ","ui.locked":"ປະຕູຍັງລັອກຢູ່. <b>+20ວິ</b>. ລອງລຽງແບບອື່ນ.","ui.exitHint":"ຄຳທຳອິດແມ່ນ <b>SCAM</b>. ຄຳທີສອງແມ່ນ <b>HUNTER</b> (ນັກລ່າ).",
+"ui.escaped":"ເຈົ້າໜີອອກມາໄດ້ແລ້ວ!","ui.totalTime":"ເວລາທັງໝົດ","ui.mistakes":"ຄວາມຜິດພາດ","ui.hintsUsed":"ຄຳແນະນຳທີ່ໃຊ້",
+"ui.gold":"ຫຼຽນຄຳ ນັກລ່າຄົນຫຼອກລວງ","ui.silver":"ຫຼຽນເງິນ ນັກສັງເກດການຫຼອກລວງ","ui.bronze":"ຫຼຽນທອງແດງ ຜູ້ລອດຈາກການຫຼອກລວງ",
+"ui.pauseTitle":"ວິທີປ້ອງກັນຕົວ - PAUSE","ui.tip1":"ຢ່າບອກລະຫັດ OTP ຫຼື ລະຫັດຜ່ານໃຫ້ໃຜເດັດຂາດ.","ui.tip2":"ຈ່າຍເງິນສະເພາະເມື່ອເຫັນສິນຄ້າແລ້ວ.","ui.tip3":"ດີເກີນຈະເປັນຈິງບໍ? ນັ້ນແມ່ນການຫຼອກລວງ.","ui.tip4":"ກວດທີ່ຢູ່ເວັບໄຊທີລະຕົວອັກສອນ.","ui.tip5":"ກວດໃນແອັບທາງການ ບໍ່ແມ່ນຜ່ານລິ້ງ.","ui.again":"ຫຼິ້ນອີກຄັ້ງ","ui.step":"ຂັ້ນຕອນ {n}",
+"r1.name":"SMS ທະນາຄານ ແລະ OTP","r1.lost":"4,800,000 ກີບ","r1.learn":"<b>ຢ່າບອກລະຫັດ OTP ໃຫ້ໃຜ.</b> ເປີດແອັບທະນາຄານເອງ ຫຼື ໂທຫາເບີທີ່ຢູ່ຫຼັງບັດ. ຖ້າໂທລະສັບຂາດສັນຍານແບບກະທັນຫັນ, ອາດມີຄົນປ່ຽນຊິມຂອງເຈົ້າ. ໃຫ້ໂທຫາທະນາຄານໄວໆ.",
+"r1.sub":"ຂໍ້ຄວາມ - ມື້ນີ້ 06:58","r1.meta":"ມື້ນີ້ 06:58",
+"r1.m1":"MekongStar Bank: ມີການເຂົ້າສູ່ລະບົບໃໝ່ຈາກ Samsung A15 ຢູ່ບາງກອກ. ບໍ່ແມ່ນເຈົ້າບໍ? ປ້ອງກັນບັນຊີພາຍໃນ 10 ນາທີ: mekongstar-secure.cc/verify","r1.m2":"ຫຼື ໂທຫາທີມງານ 24 ຊົ່ວໂມງ: +856 20 7781 4402",
+"r1s1t":"ມີຂໍ້ຄວາມເຂົ້າມາຕອນ 06:58. <b>ເຈົ້າຈະເຮັດຫຍັງກ່ອນ?</b>","r1s1h":"ລິ້ງ ແລະ ເບີໂທ<b>ຢູ່ໃນ</b>ຂໍ້ຄວາມທີ່ໜ້າຢ້ານ ອາດເປັນຂອງຄົນຫຼອກລວງ. ກວດຢູ່ໃສຈຶ່ງປອດໄພ?",
+"r1s1o1":"ເປີດແອັບ MekongStar ເອງ ແລ້ວກວດເບິ່ງບັນຊີ","r1s1o2":"ໂທຫາເບີ 24 ຊົ່ວໂມງໃນຂໍ້ຄວາມ ເພື່ອຖາມວ່າແທ້ບໍ່","r1s1o3":"ກົດລິ້ງເບິ່ງກ່ອນ ແຕ່ຍັງບໍ່ພິມລະຫັດຜ່ານ","r1s1o4":"ຕອບ STOP ເພື່ອໃຫ້ທະນາຄານເຊົາສົ່ງຂໍ້ຄວາມແບບນີ້",
+"r1s1w2":"ເບີໃນຂໍ້ຄວາມຈະໂທໄປຫາຄົນຫຼອກລວງ. ເຂົາຈະເວົ້າສຸພາບ ແລະ ຄືມືອາຊີບ. ໃຫ້ໃຊ້ເບີຫຼັງບັດ ຫຼື ແອັບທາງການ.","r1s1w3":"ພຽງແຕ່ເປີດລິ້ງປອມ ຄົນຫຼອກລວງກໍຮູ້ວ່າເບີເຈົ້າໃຊ້ຢູ່ ແລະ ບາງລິ້ງຈະຕິດຕັ້ງແອັບບໍ່ດີ. ຢ່າໃຊ້ລິ້ງເດັດຂາດ.","r1s1w4":"ການຕອບກັບບອກຄົນຫຼອກລວງວ່າເບີເຈົ້າເປັນເບີແທ້ ແລະ ໃຊ້ຢູ່. ເຈົ້າຈະຖືກຫຼອກຫຼາຍຂຶ້ນ ບໍ່ແມ່ນໜ້ອຍລົງ.",
+"r1.caller":"ຝ່າຍຄວາມປອດໄພ MekongStar","r1.oncall":"ກຳລັງໂທ 00:42",
+"r1.m3":"ສະບາຍດີ, ຂ້ອຍແມ່ນທ້າວ ຄຳຫຼ້າ ຈາກຝ່າຍຄວາມປອດໄພ MekongStar. ຂ້ອຍເຫັນຊື່ເຈົ້າ ແລະ ເລກບັດ 4 ຕົວສຸດທ້າຍ: 7714.","r1.m4":"ມີຄົນກຳລັງໂອນເງິນຂອງເຈົ້າຢູ່ດຽວນີ້. ຂ້ອຍສົ່ງລະຫັດ 6 ຕົວເພື່ອຍົກເລີກ. ກະລຸນາອ່ານໃຫ້ຂ້ອຍຟັງໄວໆ.",
+"r1s2t":"ສິບນາທີຕໍ່ມາ ໂທລະສັບດັງ. <b>ດຽວນີ້ເຈົ້າຈະເຮັດແນວໃດ?</b>","r1s2h":"ຄົນໂທຮູ້ຂໍ້ມູນບາງຢ່າງຂອງເຈົ້າ. ນັ້ນພິສູດໄດ້ບໍວ່າແມ່ນທະນາຄານ? ໃຜຕ້ອງການລະຫັດນັ້ນແທ້?",
+"r1s2o1":"ວາງສາຍ ແລ້ວໂທຫາເບີທີ່ຢູ່ຫຼັງບັດຂອງຂ້ອຍ","r1s2o2":"ອ່ານໃຫ້ຟັງແຕ່ 3 ຕົວທຳອິດຂອງລະຫັດ","r1s2o3":"ໃຫ້ລາວບອກເລກບັນຊີເຕັມຂອງຂ້ອຍກ່ອນ","r1s2o4":"ບອກລະຫັດ ເພາະລາວຮູ້ຂໍ້ມູນຂອງຂ້ອຍແລ້ວ",
+"r1s2w2":"ລະຫັດເຄິ່ງໜຶ່ງກໍຍັງອັນຕະລາຍ ແລະ ຄົນໂທຈະກົດດັນຕໍ່. ພະນັກງານທະນາຄານບໍ່ເຄີຍຂໍ OTP ເລີຍ ແມ່ນແຕ່ບາງສ່ວນ.","r1s2w3":"ຄົນຫຼອກລວງມັກມີຂໍ້ມູນທີ່ລັກມາຈາກການຮົ່ວໄຫຼ. ການຮູ້ເລກບັນຊີບໍ່ໄດ້ພິສູດຫຍັງ. ວາງສາຍ ແລ້ວໂທຫາທະນາຄານເອງ.","r1s2w4":"ຊື່ ຫຼື ເລກບັດ ຄົນຫຼອກລວງຫາໄດ້ງ່າຍ. OTP ແມ່ນກະແຈເງິນຂອງເຈົ້າ. ຢ່າບອກໃຜເດັດຂາດ.",
+"r2.name":"ໝູ່ຖືກແຮັກບັນຊີ ມາຢືມເງິນ","r2.lost":"800,000 ກີບ","r2.learn":"<b>ກວດໂດຍໂທແທ້ ຫຼື ເວົ້າກັນຕໍ່ໜ້າ.</b> ບັນຊີທີ່ຖືກແຮັກສາມາດຮຽນແບບການເວົ້າຂອງໝູ່ ແລະ ອ່ານແຊັດເກົ່າໄດ້.",
+"ui.online":"ອອນລາຍ","ui.typing":"ກຳລັງພິມ...","r2.meta":"ມື້ນີ້ 21:14",
+"r2s1t":"ໝູ່ຊື່ ນ້ອຍ ສົ່ງຂໍ້ຄວາມມາ. <b>ກົດສັນຍານອັນຕະລາຍທັງໝົດ.</b> ຢ່າກົດຂໍ້ຄວາມປົກກະຕິ.","r2s1h":"ຊອກຫາສາມຢ່າງ: ເງິນໄປຫາໃຜ, ເປັນຫຍັງ ນ້ອຍ ໂທບໍ່ໄດ້ ແລະ ຕ້ອງເຮັດໄວປານໃດ.",
+"r2f1":"ເຮີ້!! ຕື່ນຢູ່ບໍ່?","r2f2":"ບານເຕະວັນອາທິດມ່ວນຫຼາຍ ຮ່າໆ","r2f3":"ຊ່ວຍໂອນ 800,000 ກີບ ໃສ່ບັນຊີລູກພີ່ລູກນ້ອງຂ້ອຍແດ່. ຊື່: K. Vongsa","r2f4":"ດຽວນີ້ຂ້ອຍລົມໂທລະສັບບໍ່ໄດ້ ຕິດປະຊຸມຢູ່","r2f5":"ຊ່ວຍໂອນພາຍໃນ 10 ນາທີເດີ້!!","r2f6":"ຂອບໃຈເດີ້ ແລ້ວພົບກັນຢູ່ໂຮງຮຽນ",
+"r2n":"ຂໍ້ຄວາມນີ້ປົກກະຕິ. ແຮັກເກີອາດກັອບປີ້ຈາກແຊັດເກົ່າ ແຕ່ມັນບໍ່ແມ່ນສັນຍານອັນຕະລາຍໂດຍຕົວມັນເອງ.",
+"r2.m1":"ຂໍຮ້ອງ!! ດ່ວນແທ້ໆ. ມື້ອື່ນຈະຄືນໃຫ້ ສັນຍາ",
+"r2s2t":"ເຈົ້າພົບສັນຍານອັນຕະລາຍແລ້ວ. <b>ຂັ້ນຕໍ່ໄປທີ່ປອດໄພທີ່ສຸດແມ່ນຫຍັງ?</b>","r2s2h":"ວິທີກວດແບບໃດທີ່ແຮັກເກີໃນບັນຊີຂອງ ນ້ອຍ ປອມບໍ່ໄດ້?",
+"r2s2o1":"ໂທຫາ ນ້ອຍ ເບີປົກກະຕິ ຫຼື ຖາມລາວຕໍ່ໜ້າ","r2s2o2":"ຖາມຄຳຖາມໃນແຊັດທີ່ມີແຕ່ ນ້ອຍ ຮູ້","r2s2o3":"ໂອນໜ້ອຍໜຶ່ງກ່ອນ ແລ້ວໂອນສ່ວນທີ່ເຫຼືອເມື່ອລາວຕອບ","r2s2o4":"ໃຫ້ລາວສົ່ງຂໍ້ຄວາມສຽງ ເພື່ອພິສູດວ່າແມ່ນລາວ",
+"r2s2w2":"ແຮັກເກີເລື່ອນຂຶ້ນໄປອ່ານແຊັດເກົ່າຫຼາຍປີໄດ້. ໃຫ້ຕິດຕໍ່ ນ້ອຍ ດ້ວຍວິທີອື່ນ ເຊັ່ນ ໂທຫາ.","r2s2w3":"ເງິນທີ່ໂອນໃຫ້ຄົນຫຼອກລວງແມ່ນເສຍໄປເລີຍ. ການລອງໂອນໜ້ອຍໜຶ່ງ ພຽງແຕ່ບອກເຂົາວ່າເຈົ້າຈະຈ່າຍ.","r2s2w4":"ຂໍ້ຄວາມສຽງເກົ່າສາມາດສົ່ງຕໍ່ໄດ້ ແລະ AI ກໍຮຽນແບບສຽງໄດ້. ໃຫ້ໂທຫາເບີປົກກະຕິຂອງລາວແທນ.",
+"r3.name":"ມັດຈຳຮ້ານປອມ","r3.lost":"570,000 ກີບ","r3.learn":"<b>ຈ່າຍເງິນສະເພາະເມື່ອເຫັນສິນຄ້າແລ້ວ.</b> ລາຄາຖືກຫຼາຍ + ໃຫ້ມັດຈຳກ່ອນ + ຊື່ບັນຊີບໍ່ກົງກັນ = ການຫຼອກລວງ.",
+"r3.sub":"ສ້າງເພຈ 6 ມື້ກ່ອນ - 12.4K ໄລກ໌","r3.nocomments":"ປິດຄອມເມັ້ນແລ້ວ",
+"r3.m1":"ເຫຼືອແຕ່ 2 ເຄື່ອງ! ມັດຈຳ 30% ແລ້ວສົ່ງມື້ອື່ນ.","r3.m2":"ຊື່ບັນຊີ: S. Phommachanh (ຜູ້ຈັດການ). ສົ່ງສະລິບມາທີ່ນີ້.",
+"r3s1t":"ເຈົ້າຢາກໄດ້ໂທລະສັບລາຄາຖືກ. ຄົນຂາຍຢາກໄດ້ມັດຈຳ. <b>ເລືອກຄຳຕອບ.</b>","r3s1h":"ຮູບ ແລະ ໄລກ໌ປອມໄດ້ງ່າຍ. ຕອນໃດຈຶ່ງປອດໄພທີ່ຈະຈ່າຍ?",
+"r3s1o1":"ຂ້ອຍຈະຈ່າຍເມື່ອໄດ້ເຫັນ ແລະ ລອງໂທລະສັບຕົວຈິງ","r3s1o2":"ສົ່ງຮູບໂທລະສັບມາຕື່ມກ່ອນ ແລ້ວຂ້ອຍຈະຈ່າຍ","r3s1o3":"ເພຈມີ 12,000 ໄລກ໌ ມັດຈຳກໍຄົງບໍ່ເປັນຫຍັງ","r3s1o4":"ຂ້ອຍຈ່າຍເຄິ່ງໜຶ່ງດຽວນີ້ ແລະ ເຄິ່ງໜຶ່ງເມື່ອຂອງມາຮອດ",
+"r3s1w2":"ຄົນຫຼອກລວງກັອບປີ້ຮູບຈາກຮ້ານແທ້. ຮູບຫຼາຍກໍບໍ່ໄດ້ພິສູດຫຍັງ. ຈ່າຍເມື່ອໄດ້ຂອງໃນມືແລ້ວເທົ່ານັ້ນ.","r3s1w3":"ໄລກ໌ຊື້ໄດ້ ແລະ ເພຈນີ້ຫາກໍສ້າງໄດ້ 6 ມື້. ປິດຄອມເມັ້ນ ເພື່ອບໍ່ໃຫ້ຜູ້ຊື້ເຕືອນເຈົ້າ.","r3s1w4":"ຖ້າໂທລະສັບບໍ່ມາ ເງິນເຄິ່ງທຳອິດກໍເສຍໄປ. ຮ້ານແທ້ໃຫ້ຈ່າຍຕອນຮັບຂອງ ຫຼື ຈ່າຍຕໍ່ໜ້າ.",
+"r4.name":"ລາງວັນ ແລະ ລິ້ງປອມ","r4.lost":"50,000 ກີບ ແລະ ຂໍ້ມູນສ່ວນຕົວ","r4.learn":"<b>ກວດທີ່ຢູ່ເວັບໄຊທີລະຕົວອັກສອນ.</b> ໃຊ້ເລກ 0 ແທນຕົວ o, ມີຄຳເພີ່ມ ຫຼື ລົງທ້າຍແປກໆ ເຊັ່ນ .win ຫຼື .cc ແມ່ນສັນຍານອັນຕະລາຍ.",
+"r4.bday":"ວັນເກີດ 10 ປີ ສູນການຄ້າ Dokchampa","r4.won":"ເຈົ້າໄດ້ຮັບ Nova X12!","r4.pay":"ຈ່າຍຄ່າສົ່ງ 50,000 ກີບ ແລະ ແຊຣ໌ໄປ 5 ກຸ່ມ ເພື່ອຮັບລາງວັນ. ເຫຼືອ 04:59",
+"r4s1t":"ມີປັອບອັບບອກວ່າເຈົ້າໄດ້ລາງວັນ. <b>ເຈົ້າຈະເຮັດແນວໃດ?</b>","r4s1h":"ເຈົ້າເຄີຍເຂົ້າຮ່ວມຊິງລາງວັນບໍ? ລາງວັນແທ້ບໍ່ຕ້ອງຈ່າຍເງິນເພື່ອຮັບ.",
+"r4s1o1":"ປິດມັນ ແລ້ວໄປກວດເພຈທາງການຂອງ Dokchampa ເອງ","r4s1o2":"ແຊຣ໌ໄປ 5 ກຸ່ມ ແຕ່ບໍ່ຈ່າຍເງິນຫຍັງເລີຍ","r4s1o3":"ຈ່າຍຄ່າທຳນຽມ ເພາະ 50,000 ກີບ ໜ້ອຍຫຼາຍເມື່ອທຽບກັບໂທລະສັບ","r4s1o4":"ສົ່ງແຕ່ທີ່ຢູ່ບ້ານ ບໍ່ສົ່ງຂໍ້ມູນທະນາຄານ",
+"r4s1w2":"ການແຊຣ໌ເຮັດໃຫ້ການຫຼອກລວງແຜ່ໄປຫາໝູ່ ແລະ ຄອບຄົວ. ປິດມັນ ແລ້ວກວດເພຈທາງການ.","r4s1w3":"ລາງວັນແທ້ແມ່ນຟຣີ. 'ຄ່າທຳນຽມ' ນັ້ນແຫຼະແມ່ນການຫຼອກລວງ ແລະ ເຂົາຈະຂໍເງິນເພີ່ມອີກ.","r4s1w4":"ທີ່ຢູ່ ແລະ ຊື່ຂອງເຈົ້າຊ່ວຍຄົນຫຼອກລວງໃນການຫຼອກຄັ້ງຕໍ່ໄປ. ຢ່າສົ່ງຂໍ້ມູນໃຫ້ລາງວັນທີ່ເຈົ້າບໍ່ໄດ້ເຂົ້າຮ່ວມ.",
+"r4.c1":"<b>ແທ້ ຫຼື ປອມ?</b> ສີ່ຜົນການຄົ້ນຫາເບິ່ງຄືກັນ. ມີພຽງອັນດຽວທີ່ເປັນເວັບໄຊແທ້ຂອງ Dokchampa. ອ່ານແຕ່ລະທີ່ຢູ່ທີລະຕົວອັກສອນ.","r4.c2":"ເຄັດລັບ: ຊື່ແທ້ແມ່ນ <b>dokchampa</b> ແລະ ເວັບໄຊລາວມັກລົງທ້າຍດ້ວຍ <b>.la</b>",
+"r4s2t":"ປຽບທຽບ: ເຈົ້າຄົ້ນຫາໜ້າຂ່າວຂອງ Dokchampa. <b>ທີ່ຢູ່ໃດແມ່ນຂອງແທ້?</b>","r4s2h":"ເບິ່ງວ່າມີເລກ 0 ແທນຕົວ o ບໍ, ມີຄຳເພີ່ມບໍ ແລະ ເບິ່ງສ່ວນສຸດທ້າຍຂອງທີ່ຢູ່.",
+"r4s2w2":"ເບິ່ງອີກເທື່ອ: ນັ້ນແມ່ນເລກສູນ (0) ບໍ່ແມ່ນຕົວ o.","r4s2w3":"ທີ່ຢູ່ນີ້ລົງທ້າຍແທ້ໆດ້ວຍ .win. ທຸກຢ່າງທາງໜ້າແມ່ນພຽງແຕ່ການຕົບແຕ່ງ.","r4s2w4":"ມີຂີດ ແລະ ລົງທ້າຍດ້ວຍ .cc: ນີ້ແມ່ນເວັບໄຊອື່ນ ບໍ່ແມ່ນ dokchampa.la.",
+"r5.name":"ຂໍ້ຄວາມພັດສະດຸ: ປອດໄພ ຫຼື ຫຼອກລວງ?","r5.lost":"ຂໍ້ມູນບັດຂອງເຈົ້າ","r5.learn":"<b>ກວດໃນແອັບທາງການ ບໍ່ແມ່ນຜ່ານລິ້ງ.</b> ບາງຂໍ້ຄວາມແມ່ນຂອງແທ້. ຂໍ້ຄວາມແທ້ບໍ່ໃຫ້ເຈົ້າຈ່າຍເງິນຜ່ານລິ້ງ.",
+"r5s1t":"ກ່ອງຂໍ້ຄວາມຂອງເຈົ້າ. <b>ປອດໄພ ຫຼື ຫຼອກລວງ?</b> ບາງອັນແມ່ນຂອງແທ້. ເຈົ້າກຳລັງລໍພັດສະດຸຈາກໄທ.","r5s1h":"ຂໍ້ຄວາມແທ້ໃຫ້ຂໍ້ມູນ. ຂໍ້ຄວາມຫຼອກລວງຢາກໃຫ້ເຈົ້າກົດລິ້ງ ແລະ ຈ່າຍເງິນ. ກວດການສະກົດຊື່ຜູ້ສົ່ງ ແລະ ລິ້ງ.",
+"r5i1":"ພັດສະດຸ LA2290 ຂອງທ່ານຈະມາຮອດມື້ນີ້ 14:00-17:00. ຕິດຕາມໄດ້ໃນແອັບ KhongExpress.","r5y1":"ອັນນີ້ແມ່ນຂອງແທ້. ມັນໃຫ້ຂໍ້ມູນ, ບໍ່ມີລິ້ງ ແລະ ບໍ່ໄດ້ຂໍຫຍັງ.",
+"r5i2":"ພັດສະດຸ LA2290 ຖືກກັກໄວ້. ຈ່າຍຄ່າພາສີ 9,000 ກີບ: khongexpres-fee.cc","r5y2":"ຊື່ຜູ້ສົ່ງສະກົດຜິດ, ຂໍຄ່າທຳນຽມໜ້ອຍໜຶ່ງ ແລະ ມີລິ້ງ .cc. ການຫຼອກລວງພັດສະດຸແບບປົກກະຕິ.",
+"r5i3":"ທ່ານເຕີມເງິນ 50,000 ກີບ ສຳເລັດແລ້ວ. ຍອດເງິນໃໝ່: 62,500 ກີບ.","r5c3":"ເຈົ້າຫາກໍເຕີມເງິນໂທລະສັບເມື່ອ 2 ນາທີກ່ອນ.","r5y3":"ອັນນີ້ແມ່ນຂອງແທ້. ເຈົ້າຫາກໍເຕີມເງິນ, ບໍ່ມີລິ້ງ ແລະ ບໍ່ໄດ້ຂໍຫຍັງ.",
+"r5i4":"ພວກເຮົາສົ່ງບໍ່ທັນ. ເລືອກເວລາສົ່ງໃໝ່ທີ່ນີ້ (ຄ່າທຳນຽມ 5,000 ກີບ): khongexpress-redeliver.top","r5y4":"ເຖິງຊື່ຈະຖືກ ແຕ່ລິ້ງລົງທ້າຍດ້ວຍ .top ແລະ ຂໍຄ່າທຳນຽມ. ໃຫ້ກວດໃນແອັບທາງການ.",
+"r5i5":"ລະຫັດ OTP ຂອງທ່ານແມ່ນ 482913. ຢ່າບອກລະຫັດນີ້ໃຫ້ໃຜ ແມ່ນແຕ່ພະນັກງານທະນາຄານ.","r5c5":"ເຈົ້າກຳລັງເຂົ້າສູ່ລະບົບແອັບທະນາຄານຢູ່ດຽວນີ້.","r5y5":"ອັນນີ້ແມ່ນຂອງແທ້. ເຈົ້າຂໍລະຫັດເອງ. ພຽງແຕ່ຢ່າບອກໃຜ.",
+"r6.name":"ວຽກປອມ","r6.lost":"ຂໍ້ມູນໜັງສືຜ່ານແດນຂອງເຈົ້າ","r6.learn":"<b>ດີເກີນຈະເປັນຈິງບໍ? ນັ້ນແມ່ນການຫຼອກລວງ.</b> ວຽກປອມບາງອັນພາຄົນຂ້າມຊາຍແດນ ແລະ ບັງຄັບໃຫ້ເຮັດວຽກໃນສູນຫຼອກລວງ. ໃຫ້ຜູ້ໃຫຍ່ທີ່ໄວ້ໃຈໄດ້ຊ່ວຍກວດບໍລິສັດສະເໝີ.",
+"r6.sub":"ຊ່ອງ - ສະມາຊິກ 3,201 ຄົນ",
+"r6s1t":"ປະກາດຮັບສະໝັກວຽກໃນກຸ່ມແຊັດ. <b>ກົດສັນຍານອັນຕະລາຍທັງ 4 ຢ່າງ.</b> ຢ່າກົດລາຍລະອຽດປົກກະຕິ.","r6s1h":"ຄິດເຖິງເງິນເດືອນ, ການສຳພາດ, ເອກະສານຂອງເຈົ້າ ແລະ ຕົວບໍລິສັດເອງ.",
+"r6f1":"ວຽກພິມເອກະສານ ເດືອນລະ US$1,800. ບໍ່ຕ້ອງມີປະສົບການ!","r6f2":"ພາສາອັງກິດພື້ນຖານກໍໄດ້. ມີການຝຶກອົບຮົມ.","r6f3":"ສຳພາດທາງແຊັດເທົ່ານັ້ນ ມື້ນີ້. ບໍ່ມີວິດີໂອ.","r6f4":"ເຮັດວຽກວັນຈັນຫາວັນສຸກ ມື້ລະ 8 ຊົ່ວໂມງ.","r6f5":"ສົ່ງຮູບໜັງສືຜ່ານແດນມາ ເພື່ອຈອງປີ້ຍົນ.","r6f6":"ບໍລິສັດ: Golden Asia Group. ທີ່ຢູ່ຫ້ອງການ ແລະ ເວັບໄຊ ກຳລັງຈະມີ.",
+"r6n":"ລາຍລະອຽດນີ້ປົກກະຕິສຳລັບວຽກແທ້ຫຼາຍບ່ອນ. ມັນບໍ່ແມ່ນສັນຍານອັນຕະລາຍໂດຍຕົວມັນເອງ.",
+"r6.m1":"ສະໝັກດຽວນີ້! ເຫຼືອແຕ່ 3 ບ່ອນ. ພວກເຮົາຈ່າຍຄ່າປີ້ຍົນ ແລະ ໂຮງແຮມ.",
+"r6s2t":"ລູກພີ່ລູກນ້ອງຂອງເຈົ້າຢາກສະໝັກ. <b>ຄຳແນະນຳທີ່ດີທີ່ສຸດແມ່ນຫຍັງ?</b>","r6s2h":"ສັນຍາໃນແຊັດ ຫຼື ພາໝູ່ໄປສຳພາດ ບໍ່ໄດ້ເຮັດໃຫ້ວຽກເປັນຂອງແທ້. ໃຜກວດໄດ້ຢ່າງຖືກຕ້ອງ?",
+"r6s2o1":"ໃຫ້ຜູ້ໃຫຍ່ທີ່ໄວ້ໃຈໄດ້ກວດບໍລິສັດ ແລະ ວຽກກ່ອນ","r6s2o2":"ໄປສຳພາດ ແຕ່ພາໝູ່ໄປນຳເພື່ອຄວາມປອດໄພ","r6s2o3":"ສົ່ງແຕ່ສຳເນົາບັດປະຈຳຕົວ ບໍ່ສົ່ງໜັງສືຜ່ານແດນແທ້","r6s2o4":"ສະໝັກສະເພາະຖ້າເຂົາສົ່ງສັນຍາເປັນລາຍລັກອັກສອນທາງແຊັດ",
+"r6s2w2":"ບາງຄົນທີ່ໄປແລ້ວ ບໍ່ໄດ້ກັບບ້ານອີກເລີຍ. ກວດບໍລິສັດກ່ອນຈະໄປບ່ອນໃດ.","r6s2w3":"ສຳເນົາບັດປະຈຳຕົວກໍຍັງເອົາໄປໃຊ້ຫຼອກລວງໄດ້. ຢ່າສົ່ງເອກະສານໃດໆ ຈົນກວ່າຈະກວດວຽກແລ້ວ.","r6s2w4":"ສັນຍາປອມເຮັດໄດ້ໃນສອງນາທີ. ມັນບໍ່ໄດ້ພິສູດວ່າບໍລິສັດເປັນຂອງແທ້.",
+"r7.name":"ຄວາມຮັກ ແລະ ການລົງທຶນ","r7.lost":"1,356 ໂດລາ","r7.learn":"<b>ຢ່າລົງທຶນເພາະມີຄົນອອນລາຍບອກໃຫ້ລົງ.</b> ແອັບປອມສະແດງກຳໄລຫຼາຍ ແລ້ວຂໍ 'ພາສີ' ຫຼື ຄ່າທຳນຽມກ່ອນຈະຖອນເງິນໄດ້.",
+"r7.d1":"ມື້ທີ 1","r7.d19":"ມື້ທີ 19","r7.m1":"ຂໍໂທດ ສົ່ງຜິດເບີ! ແຕ່ເຈົ້າເບິ່ງຄືຄົນດີ :)","r7.m2":"ລຸງສອນຂ້ອຍເທຣດຄຣິບໂຕ. ອາທິດນີ້ຂ້ອຍໄດ້ກຳໄລ 30%! ເບິ່ງພາບໜ້າຈໍຂ້ອຍສິ.","r7.m3":"ລົງທຶນ 500,000 ກີບ ນຳຂ້ອຍແມ້. ປອດໄພ 100% ສັນຍາ.",
+"r7s1t":"ເຈົ້າຮູ້ຈັກ ລິນ ທາງອອນລາຍເມື່ອ 3 ອາທິດກ່ອນ. ລິນ ບໍ່ເຄີຍໂທວິດີໂອ. <b>ເຈົ້າຈະຕອບແນວໃດ?</b>","r7s1h":"ພາບໜ້າຈໍ, ການລອງໜ້ອຍໆ ແລະ ຄຳສັນຍາ ປອມໄດ້ທັງໝົດ. ຄຳຕອບດຽວທີ່ປອດໄພແມ່ນຫຍັງ?",
+"r7s1o1":"ບໍ່. ຂ້ອຍບໍ່ລົງທຶນເພາະມີຄົນອອນລາຍບອກໃຫ້ລົງ","r7s1o2":"ຂ້ອຍຈະລອງ 100,000 ກີບກ່ອນ ເບິ່ງວ່າໄດ້ຜົນແທ້ບໍ່","r7s1o3":"ຖ້າເຈົ້າສົ່ງພາບໜ້າຈໍກຳໄລມາໃຫ້ເບິ່ງຕື່ມອີກ","r7s1o4":"ຖ້າເຮົາໂທວິດີໂອກັນສັ້ນໆກ່ອນ",
+"r7s1w2":"ແອັບຫຼອກລວງມັກໃຫ້ເຈົ້າໄດ້ເງິນໜ້ອຍໆກ່ອນ ເພື່ອໃຫ້ເຊື່ອໃຈ. ແລ້ວເຈົ້າກໍຈະລົງເພີ່ມ.","r7s1w3":"ພາບໜ້າຈໍປອມງ່າຍຫຼາຍ. ມັນບໍ່ໄດ້ພິສູດຫຍັງ.","r7s1w4":"ຄົນຫຼອກລວງໃຊ້ວິດີໂອ Deepfake ຫຼື ໃຊ້ຄົນອື່ນແທນໄດ້. ຢ່າລົງທຶນເລີຍ.",
+"r7.bal":"StarCoin Pro - ຍອດເງິນ","r7.blocked":"ຖອນເງິນບໍ່ໄດ້: ຈ່າຍພາສີ 15% (US$1,356) ກ່ອນ","r7.m4":"ຝ່າຍບໍລິການ: ຈ່າຍພາສີມື້ນີ້ ບໍ່ດັ່ງນັ້ນບັນຊີຈະຖືກອາຍັດ.",
+"r7s2t":"ໝູ່ຂອງເຈົ້າຊື່ ຕຸ້ຍ ລົງທຶນໄປແລ້ວ. <b>ຕຸ້ຍ ຄວນເຮັດແນວໃດດຽວນີ້?</b>","r7s2h":"ຍອດເງິນນັ້ນເປັນເງິນແທ້ບໍ? ໃຜເປັນຄົນສ້າງ 'ພາສີ' ນີ້ຂຶ້ນມາ?",
+"r7s2o1":"ເຊົາຈ່າຍ, ເກັບພາບໜ້າຈໍ ແລະ ບອກຜູ້ໃຫຍ່ ແລະ ຕຳຫຼວດ","r7s2o2":"ຈ່າຍພາສີ ເພາະໜ້ອຍເມື່ອທຽບກັບກຳໄລ","r7s2o3":"ໃຫ້ຝ່າຍບໍລິການຫັກພາສີຈາກກຳໄລແທນ","r7s2o4":"ຈ່າຍພາສີເຄິ່ງໜຶ່ງດຽວນີ້ ແລະ ສັນຍາຈ່າຍສ່ວນທີ່ເຫຼືອອາທິດໜ້າ",
+"r7s2w2":"ຍອດເງິນແມ່ນປອມ. ຈ່າຍພາສີແລ້ວ ຈະມີຄ່າທຳນຽມອື່ນອີກ ແລ້ວກໍອີກ.","r7s2w3":"ຝ່າຍບໍລິການກໍແມ່ນຄົນຫຼອກລວງ. ເຂົາຈະປະຕິເສດສະເໝີ ແລະ ຂໍເງິນໃໝ່.","r7s2w4":"ທຸກການຈ່າຍເງິນໄປຫາຄົນຫຼອກລວງ. ເຊົາຈ່າຍ ແລະ ແຈ້ງຄວາມ.",
+"r8.name":"ແອັບເງິນກູ້ປອມ","r8.lost":"ລາຍຊື່ຜູ້ຕິດຕໍ່ ແລະ ຮູບຂອງເຈົ້າ","r8.learn":"<b>ດາວໂຫຼດແອັບຈາກສະໂຕທາງການເທົ່ານັ້ນ.</b> ແອັບເງິນກູ້ທີ່ຂໍລາຍຊື່ຜູ້ຕິດຕໍ່ ແລະ ຮູບ ອາດເອົາໄປໃຊ້ປະຈານ ແລະ ຂົ່ມຂູ່ເຈົ້າ.",
+"r8.sub":"ໜ້າດາວໂຫຼດ",
+"r8s1t":"ຕຸ້ຍ ພົບແອັບເງິນກູ້. <b>ກົດສັນຍານອັນຕະລາຍທັງ 4 ຢ່າງ.</b> ຢ່າກົດລາຍລະອຽດປົກກະຕິ.","r8s1h":"ເບິ່ງຄວາມໄວ, ການກວດສອບ, ແອັບມາຈາກໃສ ແລະ ຄ່າທຳນຽມ.",
+"r8f1":"ໄດ້ເງິນ 3 ລ້ານກີບ ໃນ 5 ນາທີ!","r8f2":"ມີພາສາລາວ ແລະ ພາສາອັງກິດ.","r8f3":"ບໍ່ຕ້ອງໃຊ້ບັດ, ບໍ່ມີການກວດ, ອະນຸມັດທຸກຄົນ.","r8f4":"ດາວໂຫຼດ QuickKip.apk ຈາກລິ້ງນີ້.","r8f5":"ຂະໜາດແອັບ: 24 MB.","r8f6":"ຫັກຄ່າບໍລິການ 20% ກ່ອນເຈົ້າຈະໄດ້ເງິນ.",
+"r8n":"ລາຍລະອຽດນີ້ປົກກະຕິ. ຊອກຫາສ່ວນທີ່ມີຄວາມສ່ຽງ.",
+"r8.perm":"ອະນຸຍາດໃຫ້ QuickKip ເຂົ້າເຖິງລາຍຊື່ຜູ້ຕິດຕໍ່, ຮູບ ແລະ ສະຖານທີ່ຂອງເຈົ້າບໍ?","r8.need":"ຈຳເປັນເພື່ອກວດເງິນກູ້ຂອງເຈົ້າ.",
+"r8s2t":"ຕຸ້ຍ ຕິດຕັ້ງແອັບຈົນໄດ້ ແລ້ວມີອັນນີ້ຂຶ້ນມາ. <b>ລາວຄວນກົດຫຍັງ?</b>","r8s2h":"ສິດນ້ອຍໆກໍຍັງເປັນສິດ. ແອັບນີ້ຄວນເກັບໄວ້ບໍ?",
+"r8s2o1":"ບໍ່ອະນຸຍາດ, ລຶບແອັບ ແລະ ບອກຜູ້ໃຫຍ່","r8s2o2":"ອະນຸຍາດສະເພາະຕອນໃຊ້ແອັບ ແລ້ວປິດຄືນ","r8s2o3":"ອະນຸຍາດລາຍຊື່ຜູ້ຕິດຕໍ່ ແຕ່ບໍ່ໃຫ້ຮູບ ແລະ ສະຖານທີ່","r8s2o4":"ອະນຸຍາດດຽວນີ້ ແລ້ວຄ່ອຍປ່ຽນໃນການຕັ້ງຄ່າ",
+"r8s2w2":"ພຽງບໍ່ເທົ່າໃດວິນາທີ ກໍພໍທີ່ຈະກັອບປີ້ລາຍຊື່ຜູ້ຕິດຕໍ່ ແລະ ຮູບທັງໝົດ.","r8s2w3":"ເມື່ອມີລາຍຊື່ຜູ້ຕິດຕໍ່ ເຂົາສາມາດສົ່ງຂໍ້ຄວາມຫາຄອບຄົວ ແລະ ໝູ່ ເພື່ອປະຈານເຈົ້າ.","r8s2w4":"ຮອດຕອນນັ້ນ ຂໍ້ມູນກໍຢູ່ໃນເຊີບເວີຂອງເຂົາແລ້ວ. ລຶບທີຫຼັງກໍເອົາຄືນບໍ່ໄດ້.",
+"r9.name":"ສາຍໂທສຽງ AI ຈາກ 'ແມ່'","r9.lost":"2,000,000 ກີບ","r9.learn":"<b>ສຽງສາມາດຖືກກັອບປີ້ໄດ້.</b> ຕົກລົງລະຫັດລັບໃນຄອບຄົວ ແລະ ວາງສາຍແລ້ວໂທກັບຫາເບີປົກກະຕິສະເໝີ.",
+"r9.oncall1":"ກຳລັງໂທ 00:31","r9.oncall2":"ກຳລັງໂທ 01:12",
+"r9.m1":"ແມ່ເອງ! ແມ່ເກີດອຸບັດຕິເຫດນ້ອຍໜຶ່ງ ແລະ ໂທລະສັບເສຍ. ນີ້ແມ່ນໂທລະສັບຂອງພະຍາບານ.","r9.m2":"ໂອນ 2 ລ້ານກີບ ໃສ່ບັນຊີນີ້ດຽວນີ້ເດີ້. ຢ່າບອກພໍ່ ລາວຈະໃຈຮ້າຍ.",
+"r9s1t":"ມີເບີແປກໂທມາ. ສຽງຄືແມ່ຂອງເຈົ້າແທ້ໆ. <b>ເຈົ້າຈະເຮັດແນວໃດ?</b>","r9s1h":"ຄອບຄົວເຈົ້າມີລະຫັດລັບ. ວິດີໂອ ແລະ ເລື່ອງລາວປອມໄດ້.",
+"r9s1o1":"ໃຫ້ແມ່ເວົ້າລະຫັດລັບຂອງຄອບຄົວ","r9s1o2":"ໃຫ້ແມ່ເປີດວິດີໂອ ເພື່ອໃຫ້ຂ້ອຍເຫັນໜ້າ","r9s1o3":"ຖາມວ່າແມ່ຢູ່ໂຮງໝໍໃດ ແລະ ທີ່ຢູ່ແມ່ນໃສ","r9s1o4":"ໂອນເຄິ່ງໜຶ່ງດຽວນີ້ ແລະ ສ່ວນທີ່ເຫຼືອເມື່ອເຫັນແມ່",
+"r9s1w2":"ວິດີໂອ Deepfake ກໍກັອບປີ້ໜ້າໄດ້. ໃຊ້ລະຫັດລັບ ຫຼື ໂທກັບຫາເບີປົກກະຕິຂອງແມ່.","r9s1w3":"ຄົນຫຼອກລວງກຽມເລື່ອງໄວ້ແລ້ວ. ລາຍລະອຽດບໍ່ໄດ້ພິສູດວ່າໃຜເປັນຄົນໂທ.","r9s1w4":"ເງິນທີ່ໂອນໃຫ້ຄົນຫຼອກລວງແມ່ນເສຍໄປ. ກວດດ້ວຍລະຫັດລັບກ່ອນ.",
+"r9.m3":"ແມ່ຈື່ລະຫັດບໍ່ໄດ້ ແມ່ຢ້ານຫຼາຍ! ຊ່ວຍໂອນໃຫ້ແດ່ ໄວໆ!",
+"r9s2t":"ແມ່ເວົ້າວ່າ: 'ແມ່ລືມແລ້ວ ແມ່ຢ້ານຫຼາຍ!' <b>ດຽວນີ້ເຮັດແນວໃດ?</b>","r9s2h":"ເບີໃດທີ່ເຈົ້າຮູ້ແນ່ນອນວ່າແມ່ນເບີຂອງແມ່?",
+"r9s2o1":"ວາງສາຍ ແລ້ວໂທຫາແມ່ເບີປົກກະຕິ","r9s2o2":"ໂທກັບຫາເບີນີ້ ເພື່ອກວດວ່າແມ່ນແມ່ແທ້ບໍ່","r9s2o3":"ໃຫ້ແມ່ສົ່ງຮູບອຸບັດຕິເຫດມາກ່ອນ","r9s2o4":"ໂອນໃຫ້ ເພາະແມ່ຟັງຄືຢ້ານແທ້ໆ",
+"r9s2w2":"ເບີນັ້ນເປັນຂອງຄົນຫຼອກລວງ. ໃຊ້ເບີຂອງແມ່ທີ່ບັນທຶກໄວ້ແລ້ວ.","r9s2w3":"ຮູບປອມ ຫຼື ລັກມາໄດ້ງ່າຍ. ໂທຫາເບີແທ້ຂອງແມ່.","r9s2w4":"ຄວາມຢ້ານແມ່ນກົນອຸບາຍ. AI ກັອບປີ້ສຽງ ແລະ ອາລົມຂອງແມ່ໄດ້. ວາງສາຍແລ້ວໂທກັບ.",
+"r10.name":"ສາຍໂທຕຳຫຼວດປອມ","r10.lost":"5,000,000 ກີບ","r10.learn":"<b>ຕຳຫຼວດແທ້ບໍ່ເຄີຍຂໍເງິນທາງໂທລະສັບ.</b> ວາງສາຍ ແລ້ວໂທ 1191 ເອງ. ຢ່າຕິດຕັ້ງແອັບເພາະຄົນໂທບອກ.",
+"r10.badge":"ຕຳຫຼວດ 4471","r10.vc":"ຮ້ອຍເອກ ສົມສັກ - ໂທວິດີໂອ",
+"r10s1t":"ໂທວິດີໂອຈາກ 'ຕຳຫຼວດ'. <b>ກົດສັນຍານອັນຕະລາຍທັງ 3 ຢ່າງ.</b> ຢ່າກົດປະໂຫຍກປົກກະຕິ.","r10s1h":"ຊອກຫາເລື່ອງເງິນ, ຄວາມລັບ ແລະ ແອັບ.",
+"r10f1":"ນີ້ແມ່ນຮ້ອຍເອກ ສົມສັກ ຈາກຕຳຫຼວດ.","r10f2":"ຊິມກາດທີ່ລົງທະບຽນຊື່ເຈົ້າ ຖືກໃຊ້ໃນການກະທຳຜິດ.","r10f3":"ຈ່າຍເງິນຄ້ຳປະກັນ 5 ລ້ານກີບມື້ນີ້ ບໍ່ດັ່ງນັ້ນຈະຖືກຈັບ.","r10f4":"ຢ່າບອກຄອບຄົວ. ຄະດີນີ້ເປັນຄວາມລັບ.","r10f5":"ຕິດຕັ້ງ SafeCheck ເພື່ອໃຫ້ພວກເຮົາກວດໂທລະສັບເຈົ້າ.","r10f6":"ເຈົ້າຈົດເລກບັດຕຳຫຼວດຂອງຂ້ອຍໄວ້ໄດ້: 4471.",
+"r10n":"ປະໂຫຍກນີ້ຢ່າງດຽວບໍ່ແມ່ນອັນຕະລາຍ. ເບິ່ງວ່າເຂົາຢາກໃຫ້ເຈົ້າເຮັດຫຍັງ.",
+"r10.m1":"ເຈົ້າມີເວລາ 30 ນາທີ. ເຂົ້າໃຈບໍ່?",
+"r10s2t":"ທາງເລືອກສຸດທ້າຍ. <b>ເຈົ້າຈະເຮັດແນວໃດ?</b>","r10s2h":"ຕຳຫຼວດແທ້ບໍ່ເຮັດສິ່ງເຫຼົ່ານີ້ທາງໂທລະສັບ. ເຈົ້າໂທຫາໃຜເອງໄດ້?",
+"r10s2o1":"ວາງສາຍ ແລ້ວໂທຫາຕຳຫຼວດເອງທີ່ 1191","r10s2o2":"ຈົດເລກບັດຕຳຫຼວດ ແລ້ວຈ່າຍເງິນຄ້ຳປະກັນ","r10s2o3":"ໃຫ້ເຂົາສົ່ງໝາຍຈັບມາທາງອີເມວກ່ອນ","r10s2o4":"ຕິດຕັ້ງແອັບ ແຕ່ບໍ່ເປີດແອັບທະນາຄານຫຼັງຈາກນັ້ນ",
+"r10s2w2":"ບັດ ແລະ ເຄື່ອງແບບປອມໄດ້. ຕຳຫຼວດແທ້ບໍ່ເຄີຍຂໍເງິນທາງໂທລະສັບ.","r10s2w3":"ໝາຍຈັບປອມເຮັດໄດ້ງ່າຍ. ວາງສາຍ ແລ້ວໂທ 1191 ເອງ.","r10s2w4":"ແອັບຄວບຄຸມທາງໄກເຫັນທຸກຢ່າງໃນໂທລະສັບເຈົ້າ. ຢ່າຕິດຕັ້ງແອັບໃຫ້ຄົນໂທມາເດັດຂາດ."
+}
+
+};
+var L="en",MISSING=[];
+function t(k,p){var d=I18N[L]||I18N.en,v=d[k];if(v===undefined){MISSING.push(L+":"+k);v=I18N.en[k];if(v===undefined)v=k}if(p)Object.keys(p).forEach(function(x){v=v.split("{"+x+"}").join(p[x])});return v}
+function setLang(l){L=I18N[l]?l:"en";try{localStorage.setItem("ser-lang",L)}catch(e){}document.documentElement.lang={en:"en-GB",zh:"zh-Hans",lo:"lo"}[L];document.body.className="lang-"+L;$("restartTop").textContent=t("ui.restartTop");$("hintBtn").textContent=t("ui.hintBtn")}
+function getLang(){try{return localStorage.getItem("ser-lang")}catch(e){return null}}
 var WORD="SCAMHUNTER";
 var S={muted:false};
-var $=function(id){return document.getElementById(id)};
 var screen=$("screen"),hud=$("hud"),toastEl=$("toast");
 var tickT=null;
-
-/* ---------- sound ---------- */
 var ac=null;
-function tone(seq){
-  if(S.muted)return;
-  try{
-    ac=ac||new (window.AudioContext||window.webkitAudioContext)();
-    var t=ac.currentTime;
-    seq.forEach(function(n){
-      var o=ac.createOscillator(),g=ac.createGain();
-      o.type=n[3]||"sine";o.frequency.value=n[0];
-      g.gain.setValueAtTime(0.0001,t+n[1]);
-      g.gain.exponentialRampToValueAtTime(0.18,t+n[1]+0.02);
-      g.gain.exponentialRampToValueAtTime(0.0001,t+n[1]+n[2]);
-      o.connect(g);g.connect(ac.destination);o.start(t+n[1]);o.stop(t+n[1]+n[2]+0.05);
-    });
-  }catch(e){}
-}
-var sfx={
-  good:function(){tone([[660,0,.12],[880,.1,.12],[1320,.2,.25]])},
-  bad:function(){tone([[300,0,.25,"sawtooth"],[200,.18,.4,"sawtooth"]])},
-  tap:function(){tone([[520,0,.06,"triangle"]])},
-  flag:function(){tone([[740,0,.08],[990,.07,.12]])},
-  win:function(){tone([[523,0,.15],[659,.12,.15],[784,.24,.15],[1047,.36,.4]])}
-};
-
-/* ---------- helpers ---------- */
-function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function tone(seq){if(S.muted)return;try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();var tt=ac.currentTime;seq.forEach(function(n){var o=ac.createOscillator(),g=ac.createGain();o.type=n[3]||"sine";o.frequency.value=n[0];g.gain.setValueAtTime(0.0001,tt+n[1]);g.gain.exponentialRampToValueAtTime(0.18,tt+n[1]+0.02);g.gain.exponentialRampToValueAtTime(0.0001,tt+n[1]+n[2]);o.connect(g);g.connect(ac.destination);o.start(tt+n[1]);o.stop(tt+n[1]+n[2]+0.05)})}catch(e){}}
+var sfx={good:function(){tone([[660,0,.12],[880,.1,.12],[1320,.2,.25]])},bad:function(){tone([[300,0,.25,"sawtooth"],[200,.18,.4,"sawtooth"]])},tap:function(){tone([[520,0,.06,"triangle"]])},flag:function(){tone([[740,0,.08],[990,.07,.12]])},win:function(){tone([[523,0,.15],[659,.12,.15],[784,.24,.15],[1047,.36,.4]])}};
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var x=a[i];a[i]=a[j];a[j]=x}return a}
 function fmt(s){s=Math.max(0,Math.floor(s));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")}
 function elapsed(){return (S.running?(Date.now()-S.start)/1000:S.final)+S.penalty}
 function tick(){$("time").textContent=fmt(elapsed());var d=new Date();$("clock").textContent=d.getHours()+":"+String(d.getMinutes()).padStart(2,"0")}
@@ -292,16 +603,15 @@ function addPenalty(sec){S.penalty+=sec;var p=$("timer");p.classList.add("flash"
 var toastT=null;
 function toast(msg,ms){toastEl.innerHTML=msg;toastEl.classList.add("show");clearTimeout(toastT);toastT=setTimeout(function(){toastEl.classList.remove("show")},ms||2200)}
 function renderHud(){
-  var h="";for(var i=0;i<10;i++){var g=S.got[i];h+='<div class="slot'+(g?" got":"")+'">'+(g||"?")+"</div>"}$("slots").innerHTML=h;
+  var h="";for(var i=0;i<10;i++){var g=S.got&&S.got[i];h+='<div class="slot'+(g?" got":"")+'">'+(g||"?")+"</div>"}$("slots").innerHTML=h;
   var k="";for(var j=0;j<3;j++)k+='<i class="'+(j<S.strikes?"on":"")+'"></i>';$("strikes").innerHTML=k;
-  $("roomtag").textContent=S.room<10?"Room "+(S.room+1)+"/10":"Exit";
+  $("roomtag").textContent=S.room<10?t("ui.room",{n:S.room+1}):t("ui.exit");
 }
 function setLight(light){$("status").classList.toggle("light",light);$("homebar").classList.toggle("light",light)}
 function show(html,opts){
   opts=opts||{};
-  var old=screen.firstElementChild;
   while(screen.children.length>1)screen.removeChild(screen.firstElementChild);
-  old=screen.firstElementChild;
+  var old=screen.firstElementChild;
   var d=document.createElement("div");d.className="scr "+(opts.cls||"");d.innerHTML=html;
   if(old){old.classList.add("out");setTimeout(function(){if(old.parentNode)old.parentNode.removeChild(old)},300)}
   screen.appendChild(d);
@@ -309,396 +619,190 @@ function show(html,opts){
   setLight(!!opts.light);
   $("frameLabel").textContent=opts.label||"";
   screen.setAttribute("data-screen",opts.id||"");
-  document.querySelectorAll(".whybox,.hintbox").forEach(function(b){b.remove()});
+  document.querySelectorAll(".redpage,.hintbox").forEach(function(x){x.remove()});
   return d;
 }
 function on(root,sel,fn){root.querySelectorAll(sel).forEach(function(el){el.addEventListener("click",function(e){fn(el,e)})})}
 function svgLock(){return '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#1f2937" stroke-width="2.4" stroke-linecap="round"><rect x="4" y="11" width="16" height="10" rx="2.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/><circle cx="12" cy="16" r="1.4" fill="#1f2937"/></svg>'}
+function T(k){return t(k)}
 function bar(av,col,nm,sub){return '<div class="appbar"><div class="avatar" style="background:'+col+'">'+av+'</div><div><div class="nm">'+nm+'</div><div class="sub">'+sub+'</div></div></div>'}
-function b(t){return '<div class="bubble in">'+t+'</div>'}
-function m(t){return '<div class="meta">'+t+'</div>'}
-function sms(sender,t){return '<div class="card"><div style="font-size:12px;font-weight:800;color:#6b7280;margin-bottom:3px">'+sender+'</div>'+t+'</div>'}
-
-/* ---------- ROOMS ----------
- step kinds: choice (opts shuffled), flags (tap all red flags), sos (safe or scam) */
+function b(k){return '<div class="bubble in">'+t(k)+'</div>'}
+function m(k){return '<div class="meta">'+t(k)+'</div>'}
+function sms(sender,txt){return '<div class="card"><div style="font-size:12px;font-weight:800;color:#6b7280;margin-bottom:3px">'+sender+'</div>'+txt+'</div>'}
+function fl(cls,p,flags){return flags.map(function(f,k){return '<div class="'+cls+' tap" data-f="'+f+'" data-flag="'+t("ui.redFlag")+'">'+t(p+(k+1))+'</div>'}).join("")}
+function who(av,col,nm,sub){return '<div class="who"><div class="avatar" style="background:'+col+'">'+av+'</div><div style="font-weight:800">'+nm+'</div><div style="font-size:12px;opacity:.8">'+sub+'</div></div>'}
+function vid(){return '<div class="vid"><span style="font-size:34px">&#128110;</span><span class="badge">'+t("r10.badge")+'</span></div>'}
 var ROOMS=[
-{ name:"Bank SMS and OTP", lost:"4,800,000 kip", app:"sms",
-  learn:"<b>Never share your OTP.</b> Open the bank app yourself or call the number on your card. If your phone suddenly loses signal, your SIM may have been swapped. Call your bank fast.",
-  steps:[
-  { kind:"choice", task:"A text arrives at 06:58. <b>What do you do first?</b>",
-    view:function(){return bar("M","#0e7490","MEKONGSTAR","Text message - Today 06:58")+'<div class="body">'+m("Today 06:58")+b("MekongStar Bank: New login from Samsung A15 in Bangkok. Not you? Secure your account within 10 minutes: mekongstar-secure.cc/verify")+b("Or call our 24h team: +856 20 7781 4402")+'</div>'},
-    hint:"Links and phone numbers <b>inside</b> a scary message can belong to the scammer. Where can you check safely?",
-    opts:[
-      {t:"Open the MekongStar app myself and check my account",ok:1},
-      {t:"Call the 24h number in the message to check it is real",why:"The number in the message goes to the scammer. They will sound friendly and professional. Use the number on your card or the official app."},
-      {t:"Tap the link to look, but don't type my password yet",why:"Even opening a fake link tells the scammer you are active and some links install bad apps. Never use the link."},
-      {t:"Reply STOP so the bank stops sending me these texts",why:"Replying tells the scammer your number is real and active. You get more scams, not fewer."}
-    ]},
-  { kind:"choice", task:"Ten minutes later your phone rings. <b>What do you do now?</b>",
-    view:function(){return '<div class="who"><div class="avatar" style="background:#0e7490">M</div><div style="font-weight:800">MekongStar Security</div><div style="font-size:12px;opacity:.8">+856 21 900 100 - on call 00:42</div></div><div class="body">'+b("Hello, this is Mr Khamla from MekongStar security. I can see your name and the last four card numbers: 7714.")+b("Someone is moving your money right now. I sent a 6-digit code to cancel it. Please read it to me quickly.")+'</div>'},
-    hint:"The caller knows some of your details. Does that prove it is the bank? Who really needs that code?",
-    opts:[
-      {t:"Hang up and call the number on the back of my card",ok:1},
-      {t:"Read out only the first three numbers of the code",why:"Half a code is still dangerous and the caller can keep pushing. Bank staff never ask for any part of an OTP."},
-      {t:"Ask him to tell me my full account number first",why:"Scammers often have stolen details from data leaks. Knowing your number does not prove anything. Hang up and call the bank yourself."},
-      {t:"Give the code, because he already knows my details",why:"Knowing your name or card digits is easy for scammers. The OTP is the key to your money. Never share it."}
-    ]}
-  ]},
-{ name:"A hacked friend asks for money", lost:"800,000 kip", app:"chat",
-  learn:"<b>Check with a real call or face to face.</b> A hacked account can copy your friend's style and read old chats.",
-  steps:[
-  { kind:"flags", task:"Your friend Noy messages you. <b>Tap ALL the red flags.</b> Don't tap normal messages.",
-    hint:"Look for three things: who gets the money, why Noy can't call and how fast it must happen.",
-    view:function(){return bar("N","#ec4899","Noy","online")+'<div class="body">'+m("Today 21:14")+
-      '<div class="bubble in tap" data-f="0">Hey!! are you awake?</div>'+
-      '<div class="bubble in tap" data-f="0">That football match on Sunday was so good haha</div>'+
-      '<div class="bubble in tap" data-f="1">Please send 800,000 kip to my cousin\'s account. Name: K. Vongsa</div>'+
-      '<div class="bubble in tap" data-f="1">I can\'t talk on the phone right now, I\'m in a meeting</div>'+
-      '<div class="bubble in tap" data-f="1">Please do it in the next 10 minutes!!</div>'+
-      '<div class="bubble in tap" data-f="0">Thank you, I\'ll see you at school</div></div>'},
-    neutral:"That message is normal. A hacker can copy it from old chats, but it is not a warning sign on its own."},
-  { kind:"choice", task:"You found the red flags. <b>What is the safest next step?</b>",
-    view:function(){return bar("N","#ec4899","Noy","typing...")+'<div class="body">'+b("Please!! It's an emergency. I will pay you back tomorrow, promise")+'</div>'},
-    hint:"Which check can a hacker NOT fake from inside Noy's account?",
-    opts:[
-      {t:"Call Noy on her usual number or ask her face to face",ok:1},
-      {t:"Ask a question in the chat that only Noy would know",why:"The hacker can scroll up and read years of old messages. Use a different way to reach Noy, like a phone call."},
-      {t:"Send a small amount now and the rest after she replies",why:"Any money sent to a scammer is gone. A small test only shows them you will pay."},
-      {t:"Ask her to send a voice message to prove it is her",why:"Old voice notes can be forwarded and AI can copy voices. Call her on her usual number instead."}
-    ]}
-  ]},
-{ name:"Fake shop deposit", lost:"570,000 kip", app:"shop",
-  learn:"<b>Pay only when you see the item.</b> A very low price plus deposit first plus a different account name = scam.",
-  steps:[
-  { kind:"choice", task:"You want a cheap phone. The seller wants a deposit. <b>Choose your reply.</b>",
-    view:function(){return bar("DP","#1877f2","Dokchampa Phones Outlet","Page created 6 days ago - 12.4K likes")+'<div class="body"><div class="listing"><div class="bike" style="font-size:28px">&#128241;</div><div><div style="font-weight:800">Nova X12 Pro 256GB</div><div style="color:#16a34a;font-weight:800">1,900,000 kip <s style="color:#9ca3af;font-weight:400">8,500,000</s></div><div style="font-size:12px;color:#6b7280">Comments are turned off</div></div></div>'+b("Only 2 left! Pay 30% deposit and we send tomorrow.")+b("Account name: S. Phommachanh (my manager). Send the slip here.")+'</div>'},
-    hint:"Photos and likes are easy to fake. When is the only safe moment to pay?",
-    opts:[
-      {t:"I'll pay only when I see and test the phone in person",ok:1},
-      {t:"Send me more photos of the phone first, then I'll pay",why:"Scammers copy photos from real shops. More photos prove nothing. Pay only when you have the item in your hand."},
-      {t:"The page has 12,000 likes, so the deposit is probably fine",why:"Likes can be bought and this page is only 6 days old. Comments are off so buyers can't warn you."},
-      {t:"I'll pay half now and half when the phone arrives",why:"If the phone never comes, the first half is gone. A real shop lets you pay on delivery or in person."}
-    ]}
-  ]},
-{ name:"Prize and lookalike link", lost:"50,000 kip and your details", app:"browser",
-  learn:"<b>Check the web address letter by letter.</b> 0 for o, extra words or a strange ending like .win or .cc are warning signs.",
-  steps:[
-  { kind:"choice", task:"A pop-up says you won. <b>What do you do?</b>",
-    view:function(){return '<div class="urlbar"><div class="urlpill"><span class="dim">&#128274;</span>dokchampa-lucky.win/prize</div></div><div class="prize"><div style="font-size:13px">Dokchampa Mall 10th Birthday</div><h2>You WON a Nova X12!</h2><div style="font-size:13px">Pay 50,000 kip delivery and share with 5 groups to claim. 04:59 left</div></div><div class="body"><div class="phoneimg" style="font-size:60px;text-align:center">&#127873;</div></div>'},
-    hint:"Did you enter a competition? Real prizes never cost money to receive.",
-    opts:[
-      {t:"Close it and check the official Dokchampa page myself",ok:1},
-      {t:"Share it with the 5 groups, but don't pay anything",why:"Sharing spreads the scam to your friends and family. Close it and check the official page."},
-      {t:"Pay the fee, because 50,000 kip is tiny for a phone",why:"Real prizes are free. The 'fee' is the scam and they will ask for more fees next."},
-      {t:"Send my home address only, not my bank details",why:"Your address and name help scammers with the next trick. Never send details to a prize you did not enter."}
-    ]},
-  { kind:"choice", mono:true, task:"Compare: you search for Dokchampa's news page. <b>Which address is the REAL one?</b>",
-    view:function(){return '<div class="body"><div class="card"><b>Real or fake?</b> Four results look the same. Only one is the real Dokchampa website. Read each address letter by letter.</div><div class="card" style="font-size:13px;color:#374151">Tip: the real name is <b>dokchampa</b> and Lao sites often end in <b>.la</b></div></div>'},
-    hint:"Look for a zero instead of the letter o, extra words and the very last part of the address.",
-    opts:[
-      {t:"https://dokchampa.la/news",ok:1},
-      {t:"https://d0kchampa.la/news",why:"Look again: that is a zero (0), not the letter o."},
-      {t:"https://dokchampa.la.win/news",why:"The address really ends in .win. Everything before it is just decoration."},
-      {t:"https://dokchampa-la.cc/news",why:"A dash and .cc at the end: this is a different website, not dokchampa.la."}
-    ]}
-  ]},
-{ name:"Parcel messages: safe or scam?", lost:"Your card details", app:"sms",
-  learn:"<b>Check in the official app, not the link.</b> Some messages are real. Real ones don't ask you to pay through a link.",
-  steps:[
-  { kind:"sos", task:"Your inbox. <b>Safe or scam?</b> Some are real. You are waiting for a parcel from Thailand.",
-    hint:"Real messages give information. Scam messages want you to tap a link and pay. Check the spelling of the sender and the link.",
-    items:[
-      {from:"KhongExpress",t:"Your parcel LA2290 will arrive today 14:00-17:00. Track it in the KhongExpress app.",safe:1,why:"This one was real. It gives information, has no link and asks for nothing."},
-      {from:"KhongExpres",t:"Parcel LA2290 is on hold. Pay 9,000 kip customs fee: khongexpres-fee.cc",safe:0,why:"Sender spelt wrong, a small fee and a .cc link. Classic parcel scam."},
-      {from:"Champa Telecom",t:"Your top-up of 50,000 kip was successful. New balance: 62,500 kip.",ctx:"You topped up your phone 2 minutes ago.",safe:1,why:"This was real. You just topped up, it has no link and asks for nothing."},
-      {from:"KhongExpress",t:"We missed you. Choose a new delivery time here (fee 5,000 kip): khongexpress-redeliver.top",safe:0,why:"Even with the right name, the link ends in .top and asks for a fee. Check in the official app."},
-      {from:"MEKONGSTAR",t:"Your OTP is 482913. Do not share this code with anyone, even bank staff.",ctx:"You are logging in to your bank app right now.",safe:1,why:"This was real. You asked for the code yourself. Just don't share it with anyone."}
-    ]}
-  ]},
-{ name:"Fake job offer", lost:"Your passport details", app:"chat",
-  learn:"<b>Too good to be true? It is a scam.</b> Some fake jobs take people across borders and force them to work in scam centres. Always check the company with a trusted adult.",
-  steps:[
-  { kind:"flags", task:"A job advert in a chat group. <b>Tap ALL 4 red flags.</b> Don't tap normal details.",
-    hint:"Think about the pay, the interview, your documents and the company itself.",
-    view:function(){return '<div class="tele" style="display:contents">'+bar("GA","#2aabee","Golden Asia Jobs","channel - 3,201 members")+'</div><div class="body">'+
-      '<div class="card tap" data-f="1">US$1,800 a month for typing work. No experience needed!</div>'+
-      '<div class="card tap" data-f="0">Basic English is OK. We give training.</div>'+
-      '<div class="card tap" data-f="1">Interview by chat only, today. No video.</div>'+
-      '<div class="card tap" data-f="0">Work Monday to Friday, 8 hours a day.</div>'+
-      '<div class="card tap" data-f="1">Send a photo of your passport to book your flight.</div>'+
-      '<div class="card tap" data-f="1">Company: Golden Asia Group. Office address and website coming soon.</div></div>'},
-    neutral:"That detail is normal for many real jobs. It is not a red flag on its own."},
-  { kind:"choice", task:"Your cousin wants to apply. <b>What is the best advice?</b>",
-    view:function(){return '<div class="body">'+b("Apply now! Only 3 places left. We pay the flight and hotel.")+'</div>'},
-    hint:"A chat contract or a friend at the interview doesn't make the job real. Who can check it properly?",
-    opts:[
-      {t:"Ask a trusted adult to check the company and job first",ok:1},
-      {t:"Go to the interview, but take a friend along for safety",why:"Some people who go never get to come home. Check the company before going anywhere."},
-      {t:"Send a copy of the ID card only, not the real passport",why:"Copies of your ID can still be used for fraud. Don't send any documents until the job is checked."},
-      {t:"Apply only if they send a written contract by chat",why:"A fake contract takes two minutes to make. It does not prove the company is real."}
-    ]}
-  ]},
-{ name:"Romance and investment", lost:"US$1,356", app:"chat",
-  learn:"<b>Never invest because someone online tells you to.</b> Fake apps show big profits, then ask for a 'tax' or fee to withdraw.",
-  steps:[
-  { kind:"choice", task:"You met Lin online 3 weeks ago. Lin never does video calls. <b>What do you reply?</b>",
-    view:function(){return bar("L","#a855f7","Lin","online")+'<div class="body">'+m("Day 1")+b("Sorry, wrong number! But you seem nice :)")+m("Day 19")+b("My uncle taught me crypto trading. I made 30% this week! Look at my screenshot.")+b("Put in 500,000 kip with me. It's 100% safe, I promise.")+'</div>'},
-    hint:"Screenshots, small tests and promises can all be faked. What is the only safe answer?",
-    opts:[
-      {t:"No. I never invest because someone online tells me to",ok:1},
-      {t:"I'll try 100,000 kip first to test if it really works",why:"Scam apps often let you win small amounts at first so you trust them. Then you put in more."},
-      {t:"Only if you send me more screenshots of your profits",why:"Screenshots are very easy to fake. They prove nothing."},
-      {t:"Only if we do a quick video call together first",why:"Scammers can use deepfake video or a different person. Don't invest at all."}
-    ]},
-  { kind:"choice", task:"Your friend Toui already invested. <b>What should Toui do now?</b>",
-    view:function(){return '<div class="body"><div class="card" style="text-align:center"><div style="font-size:12px;color:#6b7280">StarCoin Pro - balance</div><div style="font-size:28px;font-weight:900;color:#16a34a">US$9,040</div><div style="font-size:13px">Withdraw blocked: pay 15% tax (US$1,356) first</div></div>'+b("Support: Pay the tax today or your account will be frozen.")+'</div>'},
-    hint:"Is that balance real money? Who invented the 'tax'?",
-    opts:[
-      {t:"Stop paying, save screenshots and tell an adult and the police",ok:1},
-      {t:"Pay the tax, because it is small next to the profit",why:"The balance is fake. After the tax there will be another fee, then another."},
-      {t:"Ask support to take the tax out of the profit instead",why:"Support is the scammer. They will always say no and ask for new money."},
-      {t:"Pay half the tax now and promise the rest next week",why:"Any payment goes to the scammer. Stop paying and report it."}
-    ]}
-  ]},
-{ name:"Fake loan app", lost:"Your contacts and photos", app:"store",
-  learn:"<b>Get apps only from the official store.</b> Loan apps that want your contacts and photos can use them to shame and threaten you.",
-  steps:[
-  { kind:"flags", task:"Toui finds a loan app. <b>Tap ALL 4 red flags.</b> Don't tap normal details.",
-    hint:"Look at speed, checks, where the app comes from and fees.",
-    view:function(){return bar("QK","#f97316","QuickKip","Download page")+'<div class="body">'+
-      '<div class="card tap" data-f="1">Get 3 million kip in 5 minutes!</div>'+
-      '<div class="card tap" data-f="0">Available in Lao and English.</div>'+
-      '<div class="card tap" data-f="1">No ID, no checks, everyone is approved.</div>'+
-      '<div class="card tap" data-f="1">Download QuickKip.apk from this link.</div>'+
-      '<div class="card tap" data-f="0">App size: 24 MB.</div>'+
-      '<div class="card tap" data-f="1">A 20% service fee is taken before you get the money.</div></div>'},
-    neutral:"That detail is normal. Look for the risky parts."},
-  { kind:"choice", task:"Toui installed it anyway and this pops up. <b>What should he tap?</b>",
-    view:function(){return '<div class="body"><div class="perm"><div style="font-size:30px">&#128101;</div><h4>Allow QuickKip to access your contacts, photos and location?</h4><div style="font-size:13px;color:#6b7280">Needed to check your loan.</div></div></div>'},
-    hint:"A small permission is still a permission. Is the app safe to keep at all?",
-    opts:[
-      {t:"Don't allow, delete the app and tell an adult",ok:1},
-      {t:"Allow only while using the app, then switch it off",why:"A few seconds is enough to copy all your contacts and photos."},
-      {t:"Allow contacts, but don't allow photos or location",why:"With your contacts they can message your family and friends to shame you."},
-      {t:"Allow it now and change it later in Settings",why:"By then the data is already on their server. Deleting later does not bring it back."}
-    ]}
-  ]},
-{ name:"AI voice call from 'Mum'", lost:"2,000,000 kip", app:"call",
-  learn:"<b>A voice can be copied.</b> Agree a family code word and always hang up and call back on the usual number.",
-  steps:[
-  { kind:"choice", task:"An unknown number calls. It sounds exactly like your mum. <b>What do you do?</b>",
-    view:function(){return '<div class="who"><div class="avatar" style="background:#64748b">?</div><div style="font-weight:800">+856 20 9915 3308</div><div style="font-size:12px;opacity:.8">on call 00:31</div></div><div class="body">'+b("It's Mum! I had a small accident and lost my phone. This is a nurse's phone.")+b("Please send 2 million kip to this account now. Don't tell Dad, he'll be angry.")+'</div>'},
-    hint:"Your family has a secret code word. Video and stories can be faked.",
-    opts:[
-      {t:"Ask her to say our family code word",ok:1},
-      {t:"Ask her to turn on video so I can see her",why:"Deepfake video can copy a face too. Use a code word or call back on her usual number."},
-      {t:"Ask which hospital she is in and the address",why:"Scammers have a story ready. Details don't prove who is calling."},
-      {t:"Send half now and the rest when I see her",why:"Any money sent to a scammer is lost. Check first with the code word."}
-    ]},
-  { kind:"choice", task:"She says: 'I forgot it, I'm too scared!' <b>What now?</b>",
-    view:function(){return '<div class="who"><div class="avatar" style="background:#64748b">?</div><div style="font-weight:800">+856 20 9915 3308</div><div style="font-size:12px;opacity:.8">on call 01:12</div></div><div class="body">'+b("I can't remember the code, I'm so scared! Please just send it, quickly!")+'</div>'},
-    hint:"Which number do YOU know is really Mum's?",
-    opts:[
-      {t:"Hang up and call Mum on her usual number",ok:1},
-      {t:"Call this number back to check it is really her",why:"That number belongs to the scammer. Use the number you already have saved for Mum."},
-      {t:"Ask her to send a photo of the accident first",why:"Photos are easy to fake or steal. Call her real number."},
-      {t:"Send it, because she sounds really frightened",why:"Fear is the trick. AI can copy her voice and her feelings. Hang up and call back."}
-    ]}
-  ]},
-{ name:"Fake police call", lost:"5,000,000 kip", app:"call",
-  learn:"<b>Real police never ask for money on the phone.</b> Hang up and call 1191 yourself. Never install an app for a caller.",
-  steps:[
-  { kind:"flags", task:"A video call from 'police'. <b>Tap ALL 3 red flags.</b> Don't tap normal lines.",
-    hint:"Look for money, secrets and apps.",
-    view:function(){return '<div class="who" style="padding-top:8px"><div class="vid"><span style="font-size:34px">&#128110;</span><span class="badge">POLICE 4471</span></div><div style="font-weight:800">Officer Somsak - Video call</div></div><div class="body">'+
-      '<div class="card tap" data-f="0">This is Officer Somsak from the police.</div>'+
-      '<div class="card tap" data-f="0">A SIM card in your name was used in a crime.</div>'+
-      '<div class="card tap" data-f="1">Pay a 5 million kip guarantee today or we arrest you.</div>'+
-      '<div class="card tap" data-f="1">Don\'t tell your family. This case is secret.</div>'+
-      '<div class="card tap" data-f="1">Install SafeCheck so we can check your phone.</div>'+
-      '<div class="card tap" data-f="0">You can write down my badge number: 4471.</div></div>'},
-    neutral:"That line alone is not the danger. Look for what they want you to do."},
-  { kind:"choice", task:"Final choice. <b>What do you do?</b>",
-    view:function(){return '<div class="who" style="padding-top:8px"><div class="vid"><span style="font-size:34px">&#128110;</span><span class="badge">POLICE 4471</span></div></div><div class="body">'+b("You have 30 minutes. Do you understand?")+'</div>'},
-    hint:"Real police don't do any of these on the phone. Who can you call yourself?",
-    opts:[
-      {t:"Hang up and call the police myself on 1191",ok:1},
-      {t:"Write down the badge number, then pay the guarantee",why:"Badges and uniforms can be fake. Real police never ask for money on a call."},
-      {t:"Ask them to email the arrest warrant to me first",why:"Fake warrants are easy to make. Hang up and call 1191 yourself."},
-      {t:"Install the app, but don't open my bank app after",why:"A remote-control app can see everything on your phone. Never install an app for a caller."}
-    ]}
-  ]}
+{app:"sms",steps:[
+  {kind:"choice",view:function(){return bar("M","#0e7490","MEKONGSTAR",t("r1.sub"))+'<div class="body">'+m("r1.meta")+b("r1.m1")+b("r1.m2")+'</div>'}},
+  {kind:"choice",view:function(){return who("M","#0e7490",t("r1.caller"),"+856 21 900 100 - "+t("r1.oncall"))+'<div class="body">'+b("r1.m3")+b("r1.m4")+'</div>'}}]},
+{app:"chat",steps:[
+  {kind:"flags",view:function(){return bar("N","#ec4899",t("n.noy"),t("ui.online"))+'<div class="body">'+m("r2.meta")+fl("bubble in","r2f",[0,0,1,1,1,0])+'</div>'}},
+  {kind:"choice",view:function(){return bar("N","#ec4899",t("n.noy"),t("ui.typing"))+'<div class="body">'+b("r2.m1")+'</div>'}}]},
+{app:"shop",steps:[
+  {kind:"choice",view:function(){return bar("DP","#1877f2","Dokchampa Phones Outlet",t("r3.sub"))+'<div class="body"><div class="listing"><div class="bike" style="font-size:28px">&#128241;</div><div><div style="font-weight:800">Nova X12 Pro 256GB</div><div style="color:#16a34a;font-weight:800">1,900,000 <s style="color:#9ca3af;font-weight:400">8,500,000</s></div><div style="font-size:12px;color:#6b7280">'+t("r3.nocomments")+'</div></div></div>'+b("r3.m1")+b("r3.m2")+'</div>'}}]},
+{app:"browser",steps:[
+  {kind:"choice",view:function(){return '<div class="urlbar"><div class="urlpill"><span class="dim">&#128274;</span>dokchampa-lucky.win/prize</div></div><div class="prize"><div style="font-size:13px">'+t("r4.bday")+'</div><h2>'+t("r4.won")+'</h2><div style="font-size:13px">'+t("r4.pay")+'</div></div><div class="body"><div class="phoneimg" style="font-size:60px;text-align:center">&#127873;</div></div>'}},
+  {kind:"choice",mono:true,urls:["https://dokchampa.la/news","https://d0kchampa.la/news","https://dokchampa.la.win/news","https://dokchampa-la.cc/news"],view:function(){return '<div class="body"><div class="card">'+t("r4.c1")+'</div><div class="card" style="font-size:13px;color:#374151">'+t("r4.c2")+'</div></div>'}}]},
+{app:"sms",steps:[
+  {kind:"sos",items:[{from:"KhongExpress",safe:1},{from:"KhongExpres",safe:0},{from:"Champa Telecom",safe:1,ctx:1},{from:"KhongExpress",safe:0},{from:"MEKONGSTAR",safe:1,ctx:1}]}]},
+{app:"chat",tele:true,steps:[
+  {kind:"flags",view:function(){return bar("GA","#2aabee","Golden Asia Jobs",t("r6.sub"))+'<div class="body">'+fl("card","r6f",[1,0,1,0,1,1])+'</div>'}},
+  {kind:"choice",view:function(){return '<div class="body">'+b("r6.m1")+'</div>'}}]},
+{app:"chat",steps:[
+  {kind:"choice",view:function(){return bar("L","#a855f7",t("n.lin"),t("ui.online"))+'<div class="body">'+m("r7.d1")+b("r7.m1")+m("r7.d19")+b("r7.m2")+b("r7.m3")+'</div>'}},
+  {kind:"choice",view:function(){return '<div class="body"><div class="card" style="text-align:center"><div style="font-size:12px;color:#6b7280">'+t("r7.bal")+'</div><div style="font-size:28px;font-weight:900;color:#16a34a">US$9,040</div><div style="font-size:13px">'+t("r7.blocked")+'</div></div>'+b("r7.m4")+'</div>'}}]},
+{app:"store",steps:[
+  {kind:"flags",view:function(){return bar("QK","#f97316","QuickKip",t("r8.sub"))+'<div class="body">'+fl("card","r8f",[1,0,1,1,0,1])+'</div>'}},
+  {kind:"choice",view:function(){return '<div class="body"><div class="perm"><div style="font-size:30px">&#128101;</div><h4>'+t("r8.perm")+'</h4><div style="font-size:13px;color:#6b7280">'+t("r8.need")+'</div></div></div>'}}]},
+{app:"call",steps:[
+  {kind:"choice",view:function(){return who("?","#64748b","+856 20 9915 3308",t("r9.oncall1"))+'<div class="body">'+b("r9.m1")+b("r9.m2")+'</div>'}},
+  {kind:"choice",view:function(){return who("?","#64748b","+856 20 9915 3308",t("r9.oncall2"))+'<div class="body">'+b("r9.m3")+'</div>'}}]},
+{app:"call",steps:[
+  {kind:"flags",view:function(){return '<div class="who" style="padding-top:8px">'+vid()+'<div style="font-weight:800">'+t("r10.vc")+'</div></div><div class="body">'+fl("card","r10f",[0,0,1,1,1,0])+'</div>'}},
+  {kind:"choice",view:function(){return '<div class="who" style="padding-top:8px">'+vid()+'</div><div class="body">'+b("r10.m1")+'</div>'}}]}
 ];
 
-/* ---------- game flow ---------- */
-function newGame(){
-  var order=shuffle(WORD.split(""));
-  S={muted:S.muted,room:0,step:0,got:[],order:order,start:0,penalty:0,hints:0,mistakes:0,strikes:0,resets:0,running:false,final:0};
+function key(s){return "r"+(S.room+1)+"s"+(S.step+1)+s}
+function langScreen(){
+  clearInterval(tickT);S.running=false;
+  var r=show('<div style="text-align:center"><div class="lockicon" style="margin:0 auto">'+svgLock()+'</div><div style="font-size:40px;margin-top:18px">&#127760;</div></div>'+
+  '<div class="langs">'+
+  '<button class="btn langbtn" data-l="en" data-test="lang-en"><span class="fl">&#127468;&#127463;</span>English</button>'+
+  '<button class="btn langbtn" data-l="zh" data-test="lang-zh" lang="zh-Hans"><span class="fl">&#127464;&#127475;</span>中文</button>'+
+  '<button class="btn langbtn" data-l="lo" data-test="lang-lo" lang="lo"><span class="fl">&#127473;&#127462;</span>ລາວ</button></div><div></div>',
+  {cls:"start langscr",light:true,label:"Language",id:"lang"});
+  on(r,".langbtn",function(el){sfx.tap();setLang(el.getAttribute("data-l"));startScreen()});
 }
+function newGame(){S={muted:S.muted,room:0,step:0,got:[],order:shuffle(WORD.split("")),start:0,penalty:0,hints:0,mistakes:0,strikes:0,resets:0,running:false,final:0}}
 function startScreen(){
   clearInterval(tickT);newGame();renderHud();
   var r=show(''+
+  '<button class="langswitch" id="langsw" data-test="langswitch">&#127760; '+t("lang.name")+'</button>'+
   '<div><div class="lockicon">'+svgLock()+'</div>'+
-  '<h1>Scam<br><span>Escape</span> Room</h1>'+
-  '<p>Ten rooms. Ten scams. Every answer sounds OK. Only one is really safe.</p>'+
+  '<h1>'+t("ui.start.h1")+'</h1>'+
+  '<p>'+t("ui.start.p")+'</p>'+
   '<div class="rules">'+
-  '<div><b>1</b> Escape 10 rooms to win 10 code letters.</div>'+
-  '<div><b>2</b> Some rooms have two steps or red flags to find.</div>'+
-  '<div><b>3</b> Wrong answer: +20 seconds and a strike.</div>'+
-  '<div><b>4</b> 3 strikes and the room starts again.</div>'+
-  '<div><b>!</b> Hints help, but cost 30 seconds.</div></div></div>'+
-  '<button class="btn gold" id="go" data-test="start">Start the timer</button>',{cls:"start",light:true,label:"Start screen",id:"start"});
+  '<div><b>1</b> '+t("ui.rule1")+'</div><div><b>2</b> '+t("ui.rule2")+'</div><div><b>3</b> '+t("ui.rule3")+'</div><div><b>4</b> '+t("ui.rule4")+'</div><div><b>!</b> '+t("ui.rule5")+'</div></div></div>'+
+  '<button class="btn gold" id="go" data-test="start">'+t("ui.startBtn")+'</button>',{cls:"start",light:true,label:"Start",id:"start"});
+  $("langsw").addEventListener("click",langScreen);
   $("go").addEventListener("click",function(){sfx.good();S.start=Date.now();S.running=true;tickT=setInterval(tick,250);tick();openRoom(0)});
 }
 function openRoom(i){S.room=i;S.step=0;S.strikes=0;renderHud();openStep()}
 function openStep(){
-  var R=ROOMS[S.room],st=R.steps[S.step],multi=R.steps.length>1;
+  var R=ROOMS[S.room],st=R.steps[S.step],multi=R.steps.length>1,rn=S.room+1;
   var dark=R.app==="call";
-  var head='<div class="room '+(dark?"callscr ":"")+(R.app==="browser"?"browser ":"")+(R.app==="chat"&&S.room===5?"tele ":"")+'"><div class="task"><span class="num">'+(S.room+1)+(multi?"."+(S.step+1):"")+'</span><span>'+st.task+'</span></div>';
-  var html=head;
+  var html='<div class="room '+(dark?"callscr ":"")+(R.app==="browser"?"browser ":"")+(R.tele?"tele ":"")+'"><div class="task"><span class="num">'+rn+(multi?"."+(S.step+1):"")+'</span><span>'+t(key("t"))+'</span></div>';
   if(st.kind==="choice"){
+    var opts=[1,2,3,4].map(function(k){return {k:k,txt:st.urls?st.urls[k-1]:t(key("o"+k))}});
     html+=st.view()+'<div class="choices">';
-    shuffle(st.opts).forEach(function(o,k){
-      html+='<button class="choice'+(st.mono?" mono":"")+'" data-c="'+(o.ok?"ok":"bad")+'" data-o="'+st.opts.indexOf(o)+'"><span class="k">'+"ABCD"[k]+'</span>'+o.t+'</button>';
-    });
+    shuffle(opts).forEach(function(o,i){html+='<button class="choice'+(st.mono?" mono":"")+'" data-c="'+(o.k===1?"ok":"bad")+'" data-o="'+o.k+'"><span class="k">'+"ABCD"[i]+'</span>'+o.txt+'</button>'});
     html+='</div></div>';
   }else if(st.kind==="flags"){
-    var need=(st.view().match(/data-f="1"/g)||[]).length;
-    html+=st.view()+'<div class="choices"><div class="flagbar" data-test="flagcount"><span>Red flags found</span><span id="fc">0 / '+need+'</span></div></div></div>';
-  }else if(st.kind==="sos"){
-    html+='<div class="body" id="sosbody"></div><div class="sos"><button class="safe" data-s="1" data-test="safe">Safe</button><button class="scam" data-s="0" data-test="scam">Scam</button></div></div>';
+    var v=st.view(),need=(v.match(/data-f="1"/g)||[]).length;
+    html+=v+'<div class="choices"><div class="flagbar" data-test="flagcount"><span>'+t("ui.flagsFound")+'</span><span id="fc">0 / '+need+'</span></div></div></div>';
+  }else{
+    html+='<div class="body" id="sosbody"></div><div class="sos"><button class="safe" data-s="1" data-test="safe">'+t("ui.safe")+'</button><button class="scam" data-s="0" data-test="scam">'+t("ui.scam")+'</button></div></div>';
   }
-  var r=show(html,{hud:true,light:dark,label:"Room "+(S.room+1)+" - "+R.name+(multi?" (step "+(S.step+1)+")":""),id:"room"+(S.room+1)+"-"+(S.step+1)});
+  var r=show(html,{hud:true,light:dark,label:t("ui.room",{n:rn})+" - "+t("r"+rn+".name")+(multi?" ("+t("ui.step",{n:S.step+1})+")":""),id:"room"+rn+"-"+(S.step+1)});
   r.setAttribute("data-kind",st.kind);
   if(st.kind==="choice"){
-    on(r,".choice",function(el){
-      var o=st.opts[+el.getAttribute("data-o")];
-      if(o.ok){sfx.good();nextStep()}else{el.classList.add("shake");wrong(o.why,ROOMS[S.room].lost)}
-    });
+    on(r,".choice",function(el){var k=+el.getAttribute("data-o");if(k===1){sfx.good();nextStep()}else{el.classList.add("shake");wrong(t(key("w"+k)),t("r"+rn+".lost"))}});
   }else if(st.kind==="flags"){
     var got=0,need2=r.querySelectorAll("[data-f='1']").length;
     on(r,".tap",function(el){
       if(el.classList.contains("found"))return;
       if(el.getAttribute("data-f")==="1"){el.classList.add("found");sfx.flag();got++;$("fc").textContent=got+" / "+need2;if(got===need2)setTimeout(nextStep,700)}
-      else{el.classList.add("shake");setTimeout(function(){el.classList.remove("shake")},500);wrong(st.neutral,null,"Not a red flag!")}
+      else{el.classList.add("shake");setTimeout(function(){el.classList.remove("shake")},500);wrong(t("r"+rn+"n"),null,t("ui.notFlag"))}
     });
-  }else if(st.kind==="sos"){
-    var items=shuffle(st.items),idx=0;
-    var draw=function(){
-      var it=items[idx];
-      $("sosbody").innerHTML='<div class="prog" data-test="sosprog">Message '+(idx+1)+' of '+items.length+'</div>'+(it.ctx?'<div class="ctx">'+it.ctx+'</div>':'')+sms(it.from,it.t);
-      r.setAttribute("data-safe",it.safe?"1":"0");
-    };
+  }else{
+    var items=shuffle(st.items.map(function(it,k){it.n=k+1;return it})),idx=0;
+    var draw=function(){var it=items[idx];
+      $("sosbody").innerHTML='<div class="prog" data-test="sosprog">'+t("ui.msgOf",{i:idx+1,n:items.length})+'</div>'+(it.ctx?'<div class="ctx">'+t("r5c"+it.n)+'</div>':'')+sms(it.from,t("r5i"+it.n));
+      r.setAttribute("data-safe",it.safe?"1":"0")};
     draw();
-    on(r,".sos button",function(el){
-      var it=items[idx],ans=el.getAttribute("data-s")==="1";
-      if(ans===!!it.safe){sfx.good();toast((it.safe?"Correct, it's safe. ":"Correct, it's a scam. ")+it.why,1800);idx++;if(idx<items.length)draw();else setTimeout(nextStep,600)}
-      else if(it.safe)wrong(it.why,null,"That one was real!");else wrong(it.why,ROOMS[S.room].lost);
-    });
+    on(r,".sos button",function(el){var it=items[idx],ans=el.getAttribute("data-s")==="1",why=t("r5y"+it.n);
+      if(ans===!!it.safe){sfx.good();toast(t(it.safe?"ui.okSafe":"ui.okScam")+" "+why,1800);idx++;if(idx<items.length)draw();else setTimeout(nextStep,600)}
+      else if(it.safe)wrong(why,null,t("ui.wasReal"));else wrong(why,t("r5.lost"))});
   }
 }
-function nextStep(){
-  var R=ROOMS[S.room];
-  if(S.step<R.steps.length-1){S.step++;toast("Good! Now a harder step.",1400);openStep()}
-  else unlock();
-}
+function nextStep(){var R=ROOMS[S.room];if(S.step<R.steps.length-1){S.step++;toast(t("ui.harder"),1400);openStep()}else unlock()}
 function wrong(why,lost,title){
   sfx.bad();S.mistakes++;S.strikes++;addPenalty(20);renderHud();
   var reset=S.strikes>=3,cur=screen.lastElementChild;if(cur)cur.classList.add("shake");
   var box=document.createElement("div");box.className="scr scammed redpage";box.setAttribute("data-test","why");
-  box.innerHTML='<div><div class="skull">&#128680;</div><div class="big">'+(title||"You got scammed!")+'</div>'+
-    (lost?'<div class="lost" data-test="lost">You lost: '+lost+'</div>':'<div style="height:14px"></div>')+
-    '<div class="why"><b>Why?</b> '+why+'</div></div>'+
-    '<div><div class="strikeline" data-test="strikeline">'+(reset?"Strike 3 of 3 - the room starts again":"Strike "+S.strikes+" of 3 (+20 seconds)")+'</div>'+
-    '<button class="btn" type="button" style="background:#fff;color:#b91c1c" data-test="why-ok">'+(reset?"Start the room again":"Try again")+'</button></div>';
+  box.innerHTML='<div><div class="skull">&#128680;</div><div class="big">'+(title||t("ui.scammed"))+'</div>'+
+    (lost?'<div class="lost" data-test="lost">'+t("ui.lost",{x:lost})+'</div>':'<div style="height:14px"></div>')+
+    '<div class="why"><b>'+t("ui.why")+'</b> '+why+'</div></div>'+
+    '<div><div class="strikeline" data-test="strikeline">'+(reset?t("ui.strike3"):t("ui.strike",{n:S.strikes}))+'</div>'+
+    '<button class="btn" type="button" style="background:#fff;color:#b91c1c" data-test="why-ok">'+(reset?t("ui.restartRoom"):t("ui.try"))+'</button></div>';
   $("wrap").appendChild(box);setLight(true);hud.classList.add("hidden");
   box.querySelector("button").addEventListener("click",function(){
     sfx.tap();box.remove();setLight(ROOMS[S.room].app==="call");hud.classList.remove("hidden");
     if(cur)cur.classList.remove("shake");
-    if(reset){S.resets++;openRoom(S.room)}
-    else if(ROOMS[S.room].steps[S.step].kind==="choice"){openStep()}
+    if(reset){S.resets++;openRoom(S.room)}else if(ROOMS[S.room].steps[S.step].kind==="choice")openStep();
   });
 }
 function unlock(){
-  var i=S.room,L=S.order[i];sfx.good();S.got.push(L);renderHud();
-  show(''+
-  '<div><div style="font-size:15px;font-weight:700;opacity:.9">Room '+(i+1)+' cleared!</div>'+
-  '<div style="font-size:14px;opacity:.85">You found a code letter</div>'+
-  '<div class="tile" data-test="letter">'+L+'</div>'+
-  '<div class="learn">'+ROOMS[i].learn+'</div></div>'+
-  '<button class="btn" style="background:#fff;color:#065f46" id="next" data-test="next">'+(i<9?"Next room":"Go to the exit door")+'</button>',
-  {cls:"unlock",light:true,hud:true,label:"Room "+(i+1)+" - Unlocked",id:"unlock"});
+  var i=S.room,Lt=S.order[i];sfx.good();S.got.push(Lt);renderHud();
+  show('<div><div style="font-size:15px;font-weight:700;opacity:.9">'+t("ui.cleared",{n:i+1})+'</div><div style="font-size:14px;opacity:.85">'+t("ui.foundLetter")+'</div><div class="tile" data-test="letter">'+Lt+'</div><div class="learn">'+t("r"+(i+1)+".learn")+'</div></div>'+
+  '<button class="btn" style="background:#fff;color:#065f46" id="next" data-test="next">'+(i<9?t("ui.next"):t("ui.toExit"))+'</button>',
+  {cls:"unlock",light:true,hud:true,label:t("ui.cleared",{n:i+1}),id:"unlock"});
   $("next").addEventListener("click",function(){sfx.tap();if(i<9)openRoom(i+1);else finalRoom()});
 }
 function finalRoom(){
   S.room=10;S.strikes=0;renderHud();
-  var pool=shuffle(S.got);
-  while(pool.join("")===WORD)pool=shuffle(S.got);
+  var pool=shuffle(S.got);while(pool.join("")===WORD)pool=shuffle(S.got);
   var typed=[];
-  show(''+
-  '<div class="door" id="door"></div>'+
-  '<div style="text-align:center;font-weight:800;font-size:20px">The Exit Door</div>'+
-  '<div style="text-align:center;font-size:14px;color:#cbd5e1;margin-top:4px;line-height:1.45">Put your 10 letters in order. Two words: 4 + 6 letters.<br>Clue: <b style="color:#facc15">What did you become in this game?</b></div>'+
+  show('<div class="door" id="door"></div><div style="text-align:center;font-weight:800;font-size:20px">'+t("ui.exitTitle")+'</div>'+
+  '<div style="text-align:center;font-size:14px;color:#cbd5e1;margin-top:4px;line-height:1.45">'+t("ui.exitInstr")+'<br><span style="color:#facc15">'+t("ui.exitClue")+'</span></div>'+
   '<div class="ans" id="ans"></div><div class="pool" id="pool" data-test="pool"></div>'+
-  '<div class="rowbtn"><button class="btn ghost" id="undo" style="background:#334155;color:#fff">Undo</button><button class="btn ghost" id="clr" style="background:#334155;color:#fff">Clear</button></div>',
-  {cls:"final",light:true,hud:true,label:"Final room - Exit door",id:"final"});
+  '<div class="rowbtn"><button class="btn ghost" id="undo" style="background:#334155;color:#fff">'+t("ui.undo")+'</button><button class="btn ghost" id="clr" style="background:#334155;color:#fff">'+t("ui.clear")+'</button></div>',
+  {cls:"final",light:true,hud:true,label:t("ui.exitTitle"),id:"final"});
   function draw(){
     var a="";for(var k=0;k<10;k++){if(k===4)a+='<div class="aslot gap"></div>';a+='<div class="aslot'+(typed[k]?" f":"")+'">'+(typed[k]?typed[k].l:"")+"</div>"}$("ans").innerHTML=a;
-    var p="";pool.forEach(function(l,idx){var used=typed.some(function(t){return t.i===idx});p+='<button class="ptile'+(used?" used":"")+'" data-i="'+idx+'" data-l="'+l+'">'+l+"</button>"});$("pool").innerHTML=p;
+    var p="";pool.forEach(function(l,idx){var used=typed.some(function(x){return x.i===idx});p+='<button class="ptile'+(used?" used":"")+'" data-i="'+idx+'" data-l="'+l+'">'+l+"</button>"});$("pool").innerHTML=p;
     on($("pool"),".ptile",function(el){sfx.tap();typed.push({i:+el.getAttribute("data-i"),l:el.getAttribute("data-l")});draw();if(typed.length===10)check()});
   }
   function check(){
-    var w=typed.map(function(t){return t.l}).join("");
+    var w=typed.map(function(x){return x.l}).join("");
     if(w===WORD){S.final=(Date.now()-S.start)/1000;S.running=false;clearInterval(tickT);tick();$("door").classList.add("open");sfx.win();setTimeout(winScreen,1100)}
-    else{sfx.bad();S.mistakes++;addPenalty(20);$("ans").classList.add("shake");toast("The door stays locked. <b>+20s</b>. Try another order.");setTimeout(function(){typed=[];draw();$("ans").classList.remove("shake")},600)}
+    else{sfx.bad();S.mistakes++;addPenalty(20);$("ans").classList.add("shake");toast(t("ui.locked"));setTimeout(function(){typed=[];draw();$("ans").classList.remove("shake")},600)}
   }
   $("clr").addEventListener("click",function(){typed=[];draw()});
   $("undo").addEventListener("click",function(){typed.pop();draw()});
   draw();
 }
 function winScreen(){
-  var t=elapsed(),rank;
-  if(S.mistakes<=2&&S.hints===0&&t<480)rank="GOLD Scam Hunter";
-  else if(S.mistakes<=6&&t<780)rank="SILVER Scam Spotter";
-  else rank="BRONZE Scam Survivor";
-  show(''+
-  '<div style="text-align:center;font-size:44px" class="pop">&#127881;</div><h1>You escaped!</h1>'+
+  var tm=elapsed(),rank;
+  if(S.mistakes<=2&&S.hints===0&&tm<480)rank=t("ui.gold");else if(S.mistakes<=6&&tm<780)rank=t("ui.silver");else rank=t("ui.bronze");
+  show('<div style="text-align:center;font-size:44px" class="pop">&#127881;</div><h1>'+t("ui.escaped")+'</h1>'+
   '<div style="text-align:center;font-weight:900;letter-spacing:3px;color:#facc15">SCAM HUNTER</div>'+
   '<div class="rank" data-test="rank">'+rank+'</div>'+
-  '<div class="stats"><div class="stat"><b data-test="final-time">'+fmt(t)+'</b><span>total time</span></div><div class="stat"><b data-test="mistakes">'+S.mistakes+'</b><span>mistakes</span></div><div class="stat"><b data-test="hints">'+S.hints+'</b><span>hints used</span></div></div>'+
-  '<div class="poster"><h3>How to stay safe - PAUSE</h3><ol>'+
-  '<li>Never share your OTP or password.</li>'+
-  '<li>Pay only when you see the item.</li>'+
-  '<li>Too good to be true? It is a scam.</li>'+
-  '<li>Check the web address letter by letter.</li>'+
-  '<li>Check in the official app, not the link.</li></ol></div>'+
-  '<button class="btn gold" id="again" style="margin-top:14px" data-test="again">Play again</button>',
-  {cls:"win",light:true,label:"End screen - You escaped",id:"win"});
+  '<div class="stats"><div class="stat"><b data-test="final-time">'+fmt(tm)+'</b><span>'+t("ui.totalTime")+'</span></div><div class="stat"><b data-test="mistakes">'+S.mistakes+'</b><span>'+t("ui.mistakes")+'</span></div><div class="stat"><b data-test="hints">'+S.hints+'</b><span>'+t("ui.hintsUsed")+'</span></div></div>'+
+  '<div class="poster"><h3>'+t("ui.pauseTitle")+'</h3><ol><li>'+t("ui.tip1")+'</li><li>'+t("ui.tip2")+'</li><li>'+t("ui.tip3")+'</li><li>'+t("ui.tip4")+'</li><li>'+t("ui.tip5")+'</li></ol></div>'+
+  '<button class="btn gold" id="again" style="margin-top:14px" data-test="again">'+t("ui.again")+'</button>',
+  {cls:"win",light:true,label:t("ui.escaped"),id:"win"});
   $("again").addEventListener("click",startScreen);
   confetti();
 }
-
-/* ---------- hints ---------- */
 $("hintBtn").addEventListener("click",function(){
   if(!S.running)return;
-  var txt=S.room>=10?"It starts with <b>SCAM</b>. The second word is a person who looks for something.":ROOMS[S.room].steps[S.step].hint;
+  var txt=S.room>=10?t("ui.exitHint"):t(key("h"));
   var box=document.createElement("div");box.className="hintbox";box.setAttribute("data-test","hintbox");
-  box.innerHTML='<div class="hintcard"><h3>Hint</h3><p>'+txt+'</p><button class="btn primary" type="button">Got it (+30s)</button></div>';
+  box.innerHTML='<div class="hintcard"><h3>'+t("ui.hintTitle")+'</h3><p>'+txt+'</p><button class="btn primary" type="button">'+t("ui.hintOk")+'</button></div>';
   $("wrap").appendChild(box);S.hints++;addPenalty(30);sfx.tap();
   box.querySelector("button").addEventListener("click",function(){box.remove()});
 });
 $("muteBtn").addEventListener("click",function(){S.muted=!S.muted;this.innerHTML=S.muted?"&#128263;":"&#128266;"});
 $("restartTop").addEventListener("click",startScreen);
-
-function confetti(){
-  var c=$("confetti"),w=c.width=c.offsetWidth,h=c.height=c.offsetHeight,x=c.getContext("2d"),ps=[],cols=["#facc15","#f472b6","#60a5fa","#34d399","#f97316"];
-  for(var i=0;i<120;i++)ps.push({x:Math.random()*w,y:-Math.random()*h*.5,vx:(Math.random()-.5)*2,vy:2+Math.random()*3,r:4+Math.random()*5,c:cols[i%5],a:Math.random()*6});
-  var n=0;(function f(){x.clearRect(0,0,w,h);ps.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.a+=.1;x.save();x.translate(p.x,p.y);x.rotate(p.a);x.fillStyle=p.c;x.fillRect(-p.r/2,-p.r/4,p.r,p.r/2);x.restore()});if(++n<200)requestAnimationFrame(f);else x.clearRect(0,0,w,h)})();
-}
+function confetti(){var c=$("confetti"),w=c.width=c.offsetWidth,h=c.height=c.offsetHeight,x=c.getContext("2d"),ps=[],cols=["#facc15","#f472b6","#60a5fa","#34d399","#f97316"];for(var i=0;i<120;i++)ps.push({x:Math.random()*w,y:-Math.random()*h*.5,vx:(Math.random()-.5)*2,vy:2+Math.random()*3,r:4+Math.random()*5,c:cols[i%5],a:Math.random()*6});var n=0;(function f(){x.clearRect(0,0,w,h);ps.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.a+=.1;x.save();x.translate(p.x,p.y);x.rotate(p.a);x.fillStyle=p.c;x.fillRect(-p.r/2,-p.r/4,p.r,p.r/2);x.restore()});if(++n<200)requestAnimationFrame(f);else x.clearRect(0,0,w,h)})()}
 function fit(){var s=$("scaler");if(window.innerWidth<=520){s.style.transform="";s.style.height="";return}var avail=window.innerHeight-90;var k=Math.min(1,avail/812);s.style.transform="scale("+k+")";s.style.height=(812*k)+"px"}
 window.addEventListener("resize",fit);fit();
-window.__game={version:VERSION,state:function(){return S}};
-startScreen();
+window.__game={version:"v3-i18n",state:function(){return S},missing:function(){return MISSING},lang:function(){return L},I18N:I18N};
+var saved=getLang();
+if(saved&&I18N[saved]){setLang(saved);startScreen()}else{setLang("en");langScreen()}
+
 })();
 </script>
 </body>
