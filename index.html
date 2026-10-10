@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Scam Escape Room - Demo Prototype</title>
+<title>Scam Escape Room - SCAM HUNTER (v2)</title>
+<meta name="version" content="v2-scam-hunter">
 <style>
 :root{
   --bg:#1e1e1e; --panel:#2c2c2c; --ink:#1b1f24; --muted:#6b7280; --line:#e5e7eb;
@@ -168,13 +169,61 @@ button{font:inherit;cursor:pointer}
 .poster h3{margin:0 0 8px;font-size:16px}
 .poster ol{margin:0;padding-left:20px;font-size:14px;line-height:1.55}
 #confetti{position:absolute;inset:0;pointer-events:none;z-index:50}
+/* ---------- v2 additions ---------- */
+.hud{height:64px;flex-wrap:wrap;align-content:center;row-gap:4px;padding:4px 10px}
+.hud .row{display:flex;align-items:center;gap:6px;width:100%}
+.hud .sp{flex:1}
+.slots{gap:3px}
+.slot{width:20px;height:22px;font-size:12px;border-radius:5px}
+.strikes{display:flex;gap:3px}
+.strikes i{width:11px;height:11px;border-radius:50%;background:#4b5563;display:block}
+.strikes i.on{background:var(--red)}
+.roomtag{font-size:12px;font-weight:700;color:#cbd5e1}
+.room{padding-top:114px}
+.qtxt{font-weight:700;font-size:14px;margin:0 0 2px;color:#111827}
+.choices{max-height:52%;overflow:auto}
+.choice.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14.5px}
+.flagbar{margin:0 12px;font-size:13px;font-weight:700;color:#374151;display:flex;justify-content:space-between;padding:6px 2px}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin:6px 0;font-size:14px;line-height:1.4;position:relative}
+.card.tap{display:block}
+.found{position:relative}
+.ok-tap{background:#dcfce7!important;outline:2px solid var(--green)!important}
+.sos{display:flex;gap:10px;padding:10px 12px 26px;background:#fff;border-top:1px solid var(--line)}
+.sos button{flex:1;border:0;border-radius:14px;padding:14px;font-weight:800;font-size:16px;color:#fff}
+.sos .safe{background:var(--green)}.sos .scam{background:var(--red)}
+.ctx{font-size:12.5px;color:#374151;background:#fef3c7;border-radius:10px;padding:7px 10px;margin:4px 0 8px}
+.prog{font-size:12px;color:var(--muted);text-align:center;margin-bottom:4px}
+.whybox{position:absolute;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:flex-end;z-index:45}
+.whycard{background:#fff;width:100%;border-radius:24px 24px 0 0;padding:20px 20px 34px;animation:slideUp .3s ease}
+.whycard h3{margin:0 0 6px;font-size:18px;color:var(--red)}
+.whycard p{margin:0 0 12px;font-size:15px;line-height:1.45;color:#374151}
+.whycard .pen{font-size:13px;font-weight:700;color:#b91c1c;margin-bottom:12px}
+.callscr{background:linear-gradient(180deg,#0f172a,#1e293b);color:#fff}
+.callscr .who{text-align:center;padding:14px 10px 6px}
+.callscr .who .avatar{width:64px;height:64px;margin:0 auto 6px;font-size:24px}
+.callscr .body{background:transparent}
+.callscr .in{background:#334155;color:#fff}
+.callscr .card{background:#334155;color:#fff;border-color:#475569}
+.vid{height:96px;border-radius:12px;background:linear-gradient(135deg,#1e3a8a,#0f172a);display:flex;align-items:center;justify-content:center;gap:10px;color:#fff;font-size:12px;margin-bottom:6px}
+.badge{background:#facc15;color:#111;border-radius:6px;padding:3px 8px;font-weight:800}
+.perm{background:#fff;border-radius:18px;padding:16px;margin:20px 6px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.15)}
+.perm h4{margin:6px 0;font-size:16px}
+.final{background:radial-gradient(circle at 50% 10%,#334155,#0f172a 70%);color:#fff;padding:124px 18px 28px;overflow:auto}
+.final .ans{gap:4px;flex-wrap:nowrap}
+.final .aslot{width:26px;height:38px;font-size:19px;border-radius:7px;flex:none}
+.final .aslot.gap{border:0;width:8px}
+.final .pool{flex-wrap:wrap;gap:6px}
+.final .ptile{width:42px;height:50px;font-size:24px}
+.final .door{width:110px;height:140px}
+.rowbtn{display:flex;gap:8px}.rowbtn .btn{margin-top:0}
+.tips{font-size:13px;color:#d1fae5;margin-top:6px}
 </style>
 </head>
 <body>
 <div class="toolbar">
   <div class="logo"></div>
   <div class="title">Scam Escape Room</div>
-  <div style="color:#9ca3af">/ Prototype</div>
+  <div style="color:#9ca3af">/ v2 - 10 rooms</div>
   <div class="sp"></div>
   <button class="tbtn" id="restartTop" type="button">Restart</button>
 </div>
@@ -186,10 +235,8 @@ button{font:inherit;cursor:pointer}
         <div class="notch"></div>
         <div class="status" id="status"><span id="clock">9:41</span><span class="icons"><span class="bars"><i style="height:4px"></i><i style="height:6px"></i><i style="height:8px"></i><i style="height:10px"></i></span><span style="font-size:12px">4G</span><span class="batt"><i></i></span></span></div>
         <div class="hud hidden" id="hud">
-          <div class="pill" id="timer" title="Time">&#9201; <span id="time">0:00</span></div>
+          <div class="row"><div class="pill" id="timer" title="Time">&#9201; <span id="time">0:00</span></div><span class="roomtag" id="roomtag"></span><div class="strikes" id="strikes" title="Strikes"></div><div class="sp"></div><button class="hintbtn" id="hintBtn" type="button" data-test="hint">Hint +30s</button><button class="mute" id="muteBtn" type="button" aria-label="Sound on or off">&#128266;</button></div>
           <div class="slots" id="slots"></div>
-          <button class="hintbtn" id="hintBtn" type="button" data-test="hint">Hint +30s</button>
-          <button class="mute" id="muteBtn" type="button" aria-label="Sound on or off">&#128266;</button>
         </div>
         <div id="screen"></div>
         <div class="toast" id="toast"></div>
@@ -202,13 +249,14 @@ button{font:inherit;cursor:pointer}
 <script>
 (function(){
 "use strict";
-var CODE=["P","A","U","S","E"];
-var S={room:0,got:[],start:0,penalty:0,hints:0,scams:0,running:false,muted:false,found:{}};
+var VERSION="v2-scam-hunter";
+var WORD="SCAMHUNTER";
+var S={muted:false};
 var $=function(id){return document.getElementById(id)};
 var screen=$("screen"),hud=$("hud"),toastEl=$("toast");
-var tickT=null,countT=null;
+var tickT=null;
 
-/* ---------- sound (Web Audio, no files) ---------- */
+/* ---------- sound ---------- */
 var ac=null;
 function tone(seq){
   if(S.muted)return;
@@ -234,18 +282,24 @@ var sfx={
 };
 
 /* ---------- helpers ---------- */
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
 function fmt(s){s=Math.max(0,Math.floor(s));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")}
 function elapsed(){return (S.running?(Date.now()-S.start)/1000:S.final)+S.penalty}
 function tick(){$("time").textContent=fmt(elapsed());var d=new Date();$("clock").textContent=d.getHours()+":"+String(d.getMinutes()).padStart(2,"0")}
 function addPenalty(sec){S.penalty+=sec;var p=$("timer");p.classList.add("flash");setTimeout(function(){p.classList.remove("flash")},450);tick()}
 var toastT=null;
 function toast(msg,ms){toastEl.innerHTML=msg;toastEl.classList.add("show");clearTimeout(toastT);toastT=setTimeout(function(){toastEl.classList.remove("show")},ms||2200)}
-function renderSlots(){var h="";for(var i=0;i<5;i++){var g=S.got[i];h+='<div class="slot'+(g?" got":"")+'">'+(g||"?")+"</div>"}$("slots").innerHTML=h}
+function renderHud(){
+  var h="";for(var i=0;i<10;i++){var g=S.got[i];h+='<div class="slot'+(g?" got":"")+'">'+(g||"?")+"</div>"}$("slots").innerHTML=h;
+  var k="";for(var j=0;j<3;j++)k+='<i class="'+(j<S.strikes?"on":"")+'"></i>';$("strikes").innerHTML=k;
+  $("roomtag").textContent=S.room<10?"Room "+(S.room+1)+"/10":"Exit";
+}
 function setLight(light){$("status").classList.toggle("light",light);$("homebar").classList.toggle("light",light)}
 function show(html,opts){
   opts=opts||{};
-  clearInterval(countT);
   var old=screen.firstElementChild;
+  while(screen.children.length>1)screen.removeChild(screen.firstElementChild);
+  old=screen.firstElementChild;
   var d=document.createElement("div");d.className="scr "+(opts.cls||"");d.innerHTML=html;
   if(old){old.classList.add("out");setTimeout(function(){if(old.parentNode)old.parentNode.removeChild(old)},300)}
   screen.appendChild(d);
@@ -253,220 +307,358 @@ function show(html,opts){
   setLight(!!opts.light);
   $("frameLabel").textContent=opts.label||"";
   screen.setAttribute("data-screen",opts.id||"");
+  document.querySelectorAll(".whybox,.hintbox").forEach(function(b){b.remove()});
   return d;
 }
 function on(root,sel,fn){root.querySelectorAll(sel).forEach(function(el){el.addEventListener("click",function(e){fn(el,e)})})}
 function svgLock(){return '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#1f2937" stroke-width="2.4" stroke-linecap="round"><rect x="4" y="11" width="16" height="10" rx="2.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/><circle cx="12" cy="16" r="1.4" fill="#1f2937"/></svg>'}
-function qr(){var h="",seed=7;for(var i=0;i<121;i++){seed=(seed*9301+49297)%233280;var r=i%11,c=Math.floor(i/11);var finder=(r<3&&c<3)||(r>7&&c<3)||(r<3&&c>7);h+='<i class="'+((finder||seed/233280>.5)?"":"w")+'"></i>'}return '<div class="qr">'+h+"</div>"}
+function bar(av,col,nm,sub){return '<div class="appbar"><div class="avatar" style="background:'+col+'">'+av+'</div><div><div class="nm">'+nm+'</div><div class="sub">'+sub+'</div></div></div>'}
+function b(t){return '<div class="bubble in">'+t+'</div>'}
+function m(t){return '<div class="meta">'+t+'</div>'}
+function sms(sender,t){return '<div class="card"><div style="font-size:12px;font-weight:800;color:#6b7280;margin-bottom:3px">'+sender+'</div>'+t+'</div>'}
 
-/* ---------- ROOMS ---------- */
+/* ---------- ROOMS ----------
+ step kinds: choice (opts shuffled), flags (tap all red flags), sos (safe or scam) */
 var ROOMS=[
-{ name:"Room 1 - Bank SMS", hint:"Read the <b>second</b> message carefully. What does the real bank say about the code?",
-  learn:"<b>Never share your OTP.</b> A real bank will never ask for it. Not by SMS, not by phone, not in chat.",
-  html:function(){return ''+
-  '<div class="room sms"><div class="task"><span class="num">1/5</span><span>You get these messages. <b>What do you do?</b></span></div>'+
-  '<div class="appbar"><div class="avatar" style="background:#9ca3af">?</div><div class="nm">+856 20 5839 1147</div><div class="sub">Text message - Today 07:12</div></div>'+
-  '<div class="body">'+
-  '<div class="meta">Today 07:12</div>'+
-  '<div class="bubble in">MekongStar Bank: Your account is <b>LOCKED</b> because of strange activity. Reply with the 6-digit code we sent you in <b>10 minutes</b> or you will lose your money.</div>'+
-  '<div class="meta">Today 07:13 - from MEKONGSTAR</div>'+
-  '<div class="bubble in">MekongStar Bank OTP: <b>482913</b>. Do not share this code with anyone. Bank staff will never ask for it.</div>'+
-  '</div>'+
-  '<div class="choices">'+
-  '<button class="choice" data-c="bad1"><span class="k">A</span>Reply 482913 fast, so my account is safe</button>'+
-  '<button class="choice" data-c="bad2"><span class="k">B</span>Call +856 20 5839 1147 back and ask what is wrong</button>'+
-  '<button class="choice" data-c="ok"><span class="k">C</span>Do not reply. Call the bank number on the back of my card</button>'+
-  '</div></div>'},
-  bind:function(r){on(r,"[data-c]",function(el){var c=el.getAttribute("data-c");
-    if(c==="ok")win();
-    else if(c==="bad1")scammed("4,800,000 kip","The scammer used your OTP to log in and empty your account. <b>A bank will never ask for your OTP.</b>");
-    else scammed("4,800,000 kip","That number belongs to the scammer. On the phone they trick you into saying the code. <b>Only use the number on your card or the official app.</b>");})}
-},
-{ name:"Room 2 - Marketplace deal", hint:"Who gets the money? Why is the seller in such a hurry? What is the only safe time to pay?",
-  learn:"<b>Pay only when you see the item.</b> Cheap price + hurry + deposit first = scam.",
-  html:function(){return ''+
-  '<div class="room"><div class="task"><span class="num">2/5</span><span>You want to buy a motorbike online. <b>Choose your reply.</b></span></div>'+
-  '<div class="appbar"><div class="avatar" style="background:#1877f2">LM</div><div><div class="nm">LaoMarket - Toui Bikes</div><div class="sub">Active 2 min ago - joined 3 days ago</div></div></div>'+
-  '<div class="body">'+
-  '<div class="listing"><div class="bike"><svg width="56" height="40" viewBox="0 0 56 40" fill="none" stroke="#1e3a8a" stroke-width="3"><circle cx="12" cy="28" r="9"/><circle cx="44" cy="28" r="9"/><path d="M12 28l10-14h12l10 14M22 14l-4-6h-6M34 14l4-6h6"/></svg></div><div><div style="font-weight:800">Honda Wave 110 (2021)</div><div style="color:#16a34a;font-weight:800">2,900,000 kip</div><div style="font-size:12px;color:#6b7280">Vientiane - Like new</div></div></div>'+
-  '<div class="bubble in">Hi! Bike still here. Very cheap because I move to Thailand tomorrow.</div>'+
-  '<div class="bubble in">5 people want it! Send <b>1,000,000 kip deposit now</b> and I keep it for you.</div>'+
-  '<div class="bubble in">Scan this QR. It is my cousin\'s account, my account has a problem.'+qr()+'</div>'+
-  '</div>'+
-  '<div class="choices">'+
-  '<button class="choice" data-c="bad1"><span class="k">A</span>OK! I will send the deposit now before someone else buys it</button>'+
-  '<button class="choice" data-c="bad2"><span class="k">B</span>Send me more photos first, then I will pay the deposit</button>'+
-  '<button class="choice" data-c="ok"><span class="k">C</span>I will pay only when I see the bike and the papers. Let\'s meet at a busy place</button>'+
-  '</div></div>'},
-  bind:function(r){on(r,"[data-c]",function(el){var c=el.getAttribute("data-c");
-    if(c==="ok"){var b=r.querySelector(".body");b.insertAdjacentHTML("beforeend",'<div class="bubble outb">I will pay only when I see the bike and the papers.</div><div class="meta" style="color:#dc2626;font-weight:700">Toui Bikes blocked you. This account is no longer available.</div>');b.scrollTop=9999;r.querySelectorAll(".choice").forEach(function(x){x.disabled=true});setTimeout(win,1400)}
-    else if(c==="bad1")scammed("1,000,000 kip","After you paid, the seller blocked you. There was no bike. <b>Never pay a deposit before you see the item.</b>");
-    else scammed("1,000,000 kip","Photos are easy to copy from the internet. The seller sent nice photos, you paid and they disappeared. <b>Photos are not proof.</b>");})}
-},
-{ name:"Room 3 - Dream job chat", hint:"Look for 3 things: <b>too much money</b>, <b>too much hurry</b> and <b>asking for things you should keep</b>.",
-  learn:"<b>Too good to be true = scam.</b> Fake jobs can trap people in scam compounds. Never send your passport.",
-  html:function(){return ''+
-  '<div class="room tele"><div class="task"><span class="num">3/5</span><span>A job offer arrives. <b>Tap 3 red flags.</b> Found: <b id="fc">0</b>/3</span></div>'+
-  '<div class="appbar"><div class="avatar" style="background:#f59e0b">GL</div><div><div class="nm">Golden Lotus HR</div><div class="sub">@gl_hr_jobs2026 - not in your contacts</div></div></div>'+
-  '<div class="body">'+
-  '<div class="bubble in tap" data-f="0">Hello Noy! We saw your profile online.</div>'+
-  '<div class="bubble in tap" data-f="1">Easy online job in Bangkok. No experience needed. Salary <b>$1,800 a month</b>!</div>'+
-  '<div class="bubble in tap" data-f="0">Our office is very modern. See photo:<div class="office">GOLDEN LOTUS OFFICE</div></div>'+
-  '<div class="bubble in tap" data-f="1">Free flight and visa. Only 2 places left. <b>Answer in 1 hour!</b></div>'+
-  '<div class="bubble in tap" data-f="1">Send a photo of your <b>passport</b> and 2,000,000 kip <b>training fee</b> today.</div>'+
-  '</div>'+
-  '<div class="choices"><button class="choice" data-c="apply" style="background:#2aabee;color:#fff;border-color:#2aabee;justify-content:center;font-weight:800">Apply now and send passport</button></div>'+
-  '</div>'},
-  bind:function(r){S.found={};var n=0;
-    on(r,"[data-f]",function(el){
-      if(el.classList.contains("found"))return;
-      if(el.getAttribute("data-f")==="1"){el.classList.add("found");n++;$("fc").textContent=n;sfx.flag();if(n>=3)setTimeout(win,700)}
-      else{sfx.tap();addPenalty(5);toast("This part looks normal. Keep looking. <b>+5s</b>")}
-    });
-    on(r,"[data-c=apply]",function(){scammed("Your freedom","Fake job offers trick people into scam compounds. They take your passport and you cannot leave. <b>Real jobs never ask for a fee or your passport in chat.</b>")})}
-},
-{ name:"Room 4 - Lucky prize", hint:"Look at the <b>very top</b> of the screen. Read it letter by letter. The real shop is laoshop.la",
-  learn:"<b>Check the web address letter by letter.</b> Scammers use lookalike addresses like 1aoshop instead of laoshop.",
-  html:function(){return ''+
-  '<div class="room browser"><div class="task"><span class="num">4/5</span><span>You won a prize?! <b>Tap the clue that PROVES this page is fake.</b></span></div>'+
-  '<div class="urlbar"><div class="urlpill tap" data-t="url"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5f6368" stroke-width="2.4"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span>1aoshop-prize.win<span class="dim">/iphone</span></span></div></div>'+
-  '<div class="body" style="padding:0;background:#fff">'+
-  '<div class="prize"><div style="font-size:13px;font-weight:700;opacity:.9">LaoShop Lucky Day</div><h2>CONGRATULATIONS!</h2><div style="font-size:14px">You are visitor number 1,000,000.<br>You won an <b>iPhone 17 Pro</b>!</div>'+
-  '<div class="phoneimg tap" data-t="img"></div>'+
-  '<div class="count tap" data-t="count">Offer ends in <span id="cd">4:59</span></div>'+
-  '<button class="claim" data-t="claim">CLAIM MY PRIZE</button>'+
-  '<div style="font-size:12px;margin-top:10px;opacity:.9">Pay only 49,000 kip for delivery</div></div>'+
-  '<div class="fine tap" data-t="fine">&copy; 2026 LaoShop. All rights reserved. Terms - Privacy</div>'+
-  '</div></div>'},
-  bind:function(r){
-    var s=299;countT=setInterval(function(){s--;var e=$("cd");if(e)e.textContent=fmt(s);if(s<=0)clearInterval(countT)},1000);
-    on(r,"[data-t]",function(el){var t=el.getAttribute("data-t");
-      if(t==="url"){sfx.flag();el.classList.add("found");var z=document.createElement("div");z.className="zoom";z.innerHTML='Look closely:<span class="u"><em>1</em>aoshop-prize<em>.win</em></span>The first letter is the number <b>1</b>, not the letter <b>l</b>. And the real shop is <b>laoshop.la</b>, not .win';r.appendChild(z);setTimeout(win,2300)}
-      else if(t==="claim"){scammed("49,000 kip + your card","You typed your card number to pay for delivery. There is no iPhone and the scammers now have your card. <b>Check the web address first.</b>")}
-      else if(t==="count"){sfx.tap();addPenalty(5);toast("Good thinking: hurry is a red flag. But find the clue that <b>proves</b> it is fake. <b>+5s</b>",2800)}
-      else{sfx.tap();addPenalty(5);toast("Logos and pictures are easy to copy. Keep looking. <b>+5s</b>")}
-    })}
-},
-{ name:"Room 5 - Parcel fee", hint:"A small fee can be a big trap. Where should you check your parcel: in the link, or in the official app?",
-  learn:"<b>Check in the official app, not the link.</b> Small fee links steal your card and OTP.",
-  html:function(){return ''+
-  '<div class="room sms"><div class="task"><span class="num">5/5</span><span>You are waiting for a parcel. <b>What do you do?</b></span></div>'+
-  '<div class="appbar"><div class="avatar" style="background:#b91c1c">K</div><div class="nm">KhongExpres</div><div class="sub">Text message - Today 16:40</div></div>'+
-  '<div class="body">'+
-  '<div class="meta">Today 16:40</div>'+
-  '<div class="bubble in">KhongExpres: Your parcel LA2026-88412 cannot be delivered. The address is wrong. Pay <b>9,900 kip</b> fee in 24 hours or it goes back: <span style="color:#2563eb;text-decoration:underline">http://khongexpress-la.fee-pay.cc</span></div>'+
-  '</div>'+
-  '<div class="choices">'+
-  '<button class="choice" data-c="link"><span class="k">A</span>Tap the link. It is only 9,900 kip</button>'+
-  '<button class="choice" data-c="reply"><span class="k">B</span>Reply: "Who are you? Stop sending messages!"</button>'+
-  '<button class="choice" data-c="ok"><span class="k">C</span>Open the real KhongExpress app and check the tracking number</button>'+
-  '</div></div>'},
-  bind:function(r){on(r,"[data-c]",function(el){var c=el.getAttribute("data-c");
-    if(c==="ok")win();
-    else if(c==="reply")scammed("Your phone number","Replying tells the scammers your number is real. Now you get more scam messages every day. <b>Do not reply. Delete and block.</b>");
-    else payPage();})}
-}];
+{ name:"Bank SMS and OTP", app:"sms",
+  learn:"<b>Never share your OTP.</b> Open the bank app yourself or call the number on your card. If your phone suddenly loses signal, your SIM may have been swapped. Call your bank fast.",
+  steps:[
+  { kind:"choice", task:"A text arrives at 06:58. <b>What do you do first?</b>",
+    view:function(){return bar("M","#0e7490","MEKONGSTAR","Text message - Today 06:58")+'<div class="body">'+m("Today 06:58")+b("MekongStar Bank: New login from Samsung A15 in Bangkok. Not you? Secure your account within 10 minutes: mekongstar-secure.cc/verify")+b("Or call our 24h team: +856 20 7781 4402")+'</div>'},
+    hint:"Links and phone numbers <b>inside</b> a scary message can belong to the scammer. Where can you check safely?",
+    opts:[
+      {t:"Open the MekongStar app myself and check my account",ok:1},
+      {t:"Call the 24h number in the message to check it is real",why:"The number in the message goes to the scammer. They will sound friendly and professional. Use the number on your card or the official app."},
+      {t:"Tap the link to look, but don't type my password yet",why:"Even opening a fake link tells the scammer you are active and some links install bad apps. Never use the link."},
+      {t:"Reply STOP so the bank stops sending me these texts",why:"Replying tells the scammer your number is real and active. You get more scams, not fewer."}
+    ]},
+  { kind:"choice", task:"Ten minutes later your phone rings. <b>What do you do now?</b>",
+    view:function(){return '<div class="who"><div class="avatar" style="background:#0e7490">M</div><div style="font-weight:800">MekongStar Security</div><div style="font-size:12px;opacity:.8">+856 21 900 100 - on call 00:42</div></div><div class="body">'+b("Hello, this is Mr Khamla from MekongStar security. I can see your name and the last four card numbers: 7714.")+b("Someone is moving your money right now. I sent a 6-digit code to cancel it. Please read it to me quickly.")+'</div>'},
+    hint:"The caller knows some of your details. Does that prove it is the bank? Who really needs that code?",
+    opts:[
+      {t:"Hang up and call the number on the back of my card",ok:1},
+      {t:"Read out only the first three numbers of the code",why:"Half a code is still dangerous and the caller can keep pushing. Bank staff never ask for any part of an OTP."},
+      {t:"Ask him to tell me my full account number first",why:"Scammers often have stolen details from data leaks. Knowing your number does not prove anything. Hang up and call the bank yourself."},
+      {t:"Give the code, because he already knows my details",why:"Knowing your name or card digits is easy for scammers. The OTP is the key to your money. Never share it."}
+    ]}
+  ]},
+{ name:"A hacked friend asks for money", app:"chat",
+  learn:"<b>Check with a real call or face to face.</b> A hacked account can copy your friend's style and read old chats.",
+  steps:[
+  { kind:"flags", task:"Your friend Noy messages you. <b>Tap ALL the red flags.</b> Don't tap normal messages.",
+    hint:"Look for three things: who gets the money, why Noy can't call and how fast it must happen.",
+    view:function(){return bar("N","#ec4899","Noy","online")+'<div class="body">'+m("Today 21:14")+
+      '<div class="bubble in tap" data-f="0">Hey!! are you awake?</div>'+
+      '<div class="bubble in tap" data-f="0">That football match on Sunday was so good haha</div>'+
+      '<div class="bubble in tap" data-f="1">Please send 800,000 kip to my cousin\'s account. Name: K. Vongsa</div>'+
+      '<div class="bubble in tap" data-f="1">I can\'t talk on the phone right now, I\'m in a meeting</div>'+
+      '<div class="bubble in tap" data-f="1">Please do it in the next 10 minutes!!</div>'+
+      '<div class="bubble in tap" data-f="0">Thank you, I\'ll see you at school</div></div>'},
+    neutral:"That message is normal. A hacker can copy it from old chats, but it is not a warning sign on its own."},
+  { kind:"choice", task:"You found the red flags. <b>What is the safest next step?</b>",
+    view:function(){return bar("N","#ec4899","Noy","typing...")+'<div class="body">'+b("Please!! It's an emergency. I will pay you back tomorrow, promise")+'</div>'},
+    hint:"Which check can a hacker NOT fake from inside Noy's account?",
+    opts:[
+      {t:"Call Noy on her usual number or ask her face to face",ok:1},
+      {t:"Ask a question in the chat that only Noy would know",why:"The hacker can scroll up and read years of old messages. Use a different way to reach Noy, like a phone call."},
+      {t:"Send a small amount now and the rest after she replies",why:"Any money sent to a scammer is gone. A small test only shows them you will pay."},
+      {t:"Ask her to send a voice message to prove it is her",why:"Old voice notes can be forwarded and AI can copy voices. Call her on her usual number instead."}
+    ]}
+  ]},
+{ name:"Fake shop deposit", app:"shop",
+  learn:"<b>Pay only when you see the item.</b> A very low price plus deposit first plus a different account name = scam.",
+  steps:[
+  { kind:"choice", task:"You want a cheap phone. The seller wants a deposit. <b>Choose your reply.</b>",
+    view:function(){return bar("DP","#1877f2","Dokchampa Phones Outlet","Page created 6 days ago - 12.4K likes")+'<div class="body"><div class="listing"><div class="bike" style="font-size:28px">&#128241;</div><div><div style="font-weight:800">Nova X12 Pro 256GB</div><div style="color:#16a34a;font-weight:800">1,900,000 kip <s style="color:#9ca3af;font-weight:400">8,500,000</s></div><div style="font-size:12px;color:#6b7280">Comments are turned off</div></div></div>'+b("Only 2 left! Pay 30% deposit and we send tomorrow.")+b("Account name: S. Phommachanh (my manager). Send the slip here.")+'</div>'},
+    hint:"Photos and likes are easy to fake. When is the only safe moment to pay?",
+    opts:[
+      {t:"I'll pay only when I see and test the phone in person",ok:1},
+      {t:"Send me more photos of the phone first, then I'll pay",why:"Scammers copy photos from real shops. More photos prove nothing. Pay only when you have the item in your hand."},
+      {t:"The page has 12,000 likes, so the deposit is probably fine",why:"Likes can be bought and this page is only 6 days old. Comments are off so buyers can't warn you."},
+      {t:"I'll pay half now and half when the phone arrives",why:"If the phone never comes, the first half is gone. A real shop lets you pay on delivery or in person."}
+    ]}
+  ]},
+{ name:"Prize and lookalike link", app:"browser",
+  learn:"<b>Check the web address letter by letter.</b> 0 for o, extra words or a strange ending like .win or .cc are warning signs.",
+  steps:[
+  { kind:"choice", task:"A pop-up says you won. <b>What do you do?</b>",
+    view:function(){return '<div class="urlbar"><div class="urlpill"><span class="dim">&#128274;</span>dokchampa-lucky.win/prize</div></div><div class="prize"><div style="font-size:13px">Dokchampa Mall 10th Birthday</div><h2>You WON a Nova X12!</h2><div style="font-size:13px">Pay 50,000 kip delivery and share with 5 groups to claim. 04:59 left</div></div><div class="body"><div class="phoneimg" style="font-size:60px;text-align:center">&#127873;</div></div>'},
+    hint:"Did you enter a competition? Real prizes never cost money to receive.",
+    opts:[
+      {t:"Close it and check the official Dokchampa page myself",ok:1},
+      {t:"Share it with the 5 groups, but don't pay anything",why:"Sharing spreads the scam to your friends and family. Close it and check the official page."},
+      {t:"Pay the fee, because 50,000 kip is tiny for a phone",why:"Real prizes are free. The 'fee' is the scam and they will ask for more fees next."},
+      {t:"Send my home address only, not my bank details",why:"Your address and name help scammers with the next trick. Never send details to a prize you did not enter."}
+    ]},
+  { kind:"choice", mono:true, task:"Compare: you search for Dokchampa's news page. <b>Which address is the REAL one?</b>",
+    view:function(){return '<div class="body"><div class="card"><b>Real or fake?</b> Four results look the same. Only one is the real Dokchampa website. Read each address letter by letter.</div><div class="card" style="font-size:13px;color:#374151">Tip: the real name is <b>dokchampa</b> and Lao sites often end in <b>.la</b></div></div>'},
+    hint:"Look for a zero instead of the letter o, extra words and the very last part of the address.",
+    opts:[
+      {t:"https://dokchampa.la/news",ok:1},
+      {t:"https://d0kchampa.la/news",why:"Look again: that is a zero (0), not the letter o."},
+      {t:"https://dokchampa.la.win/news",why:"The address really ends in .win. Everything before it is just decoration."},
+      {t:"https://dokchampa-la.cc/news",why:"A dash and .cc at the end: this is a different website, not dokchampa.la."}
+    ]}
+  ]},
+{ name:"Parcel messages: safe or scam?", app:"sms",
+  learn:"<b>Check in the official app, not the link.</b> Some messages are real. Real ones don't ask you to pay through a link.",
+  steps:[
+  { kind:"sos", task:"Your inbox. <b>Safe or scam?</b> Some are real. You are waiting for a parcel from Thailand.",
+    hint:"Real messages give information. Scam messages want you to tap a link and pay. Check the spelling of the sender and the link.",
+    items:[
+      {from:"KhongExpress",t:"Your parcel LA2290 will arrive today 14:00-17:00. Track it in the KhongExpress app.",safe:1,why:"This one was real. It gives information, has no link and asks for nothing."},
+      {from:"KhongExpres",t:"Parcel LA2290 is on hold. Pay 9,000 kip customs fee: khongexpres-fee.cc",safe:0,why:"Sender spelt wrong, a small fee and a .cc link. Classic parcel scam."},
+      {from:"Champa Telecom",t:"Your top-up of 50,000 kip was successful. New balance: 62,500 kip.",ctx:"You topped up your phone 2 minutes ago.",safe:1,why:"This was real. You just topped up, it has no link and asks for nothing."},
+      {from:"KhongExpress",t:"We missed you. Choose a new delivery time here (fee 5,000 kip): khongexpress-redeliver.top",safe:0,why:"Even with the right name, the link ends in .top and asks for a fee. Check in the official app."},
+      {from:"MEKONGSTAR",t:"Your OTP is 482913. Do not share this code with anyone, even bank staff.",ctx:"You are logging in to your bank app right now.",safe:1,why:"This was real. You asked for the code yourself. Just don't share it with anyone."}
+    ]}
+  ]},
+{ name:"Fake job offer", app:"chat",
+  learn:"<b>Too good to be true? It is a scam.</b> Some fake jobs take people across borders and force them to work in scam centres. Always check the company with a trusted adult.",
+  steps:[
+  { kind:"flags", task:"A job advert in a chat group. <b>Tap ALL 4 red flags.</b> Don't tap normal details.",
+    hint:"Think about the pay, the interview, your documents and the company itself.",
+    view:function(){return '<div class="tele" style="display:contents">'+bar("GA","#2aabee","Golden Asia Jobs","channel - 3,201 members")+'</div><div class="body">'+
+      '<div class="card tap" data-f="1">US$1,800 a month for typing work. No experience needed!</div>'+
+      '<div class="card tap" data-f="0">Basic English is OK. We give training.</div>'+
+      '<div class="card tap" data-f="1">Interview by chat only, today. No video.</div>'+
+      '<div class="card tap" data-f="0">Work Monday to Friday, 8 hours a day.</div>'+
+      '<div class="card tap" data-f="1">Send a photo of your passport to book your flight.</div>'+
+      '<div class="card tap" data-f="1">Company: Golden Asia Group. Office address and website coming soon.</div></div>'},
+    neutral:"That detail is normal for many real jobs. It is not a red flag on its own."},
+  { kind:"choice", task:"Your cousin wants to apply. <b>What is the best advice?</b>",
+    view:function(){return '<div class="body">'+b("Apply now! Only 3 places left. We pay the flight and hotel.")+'</div>'},
+    hint:"A chat contract or a friend at the interview doesn't make the job real. Who can check it properly?",
+    opts:[
+      {t:"Ask a trusted adult to check the company and job first",ok:1},
+      {t:"Go to the interview, but take a friend along for safety",why:"Some people who go never get to come home. Check the company before going anywhere."},
+      {t:"Send a copy of the ID card only, not the real passport",why:"Copies of your ID can still be used for fraud. Don't send any documents until the job is checked."},
+      {t:"Apply only if they send a written contract by chat",why:"A fake contract takes two minutes to make. It does not prove the company is real."}
+    ]}
+  ]},
+{ name:"Romance and investment", app:"chat",
+  learn:"<b>Never invest because someone online tells you to.</b> Fake apps show big profits, then ask for a 'tax' or fee to withdraw.",
+  steps:[
+  { kind:"choice", task:"You met Lin online 3 weeks ago. Lin never does video calls. <b>What do you reply?</b>",
+    view:function(){return bar("L","#a855f7","Lin","online")+'<div class="body">'+m("Day 1")+b("Sorry, wrong number! But you seem nice :)")+m("Day 19")+b("My uncle taught me crypto trading. I made 30% this week! Look at my screenshot.")+b("Put in 500,000 kip with me. It's 100% safe, I promise.")+'</div>'},
+    hint:"Screenshots, small tests and promises can all be faked. What is the only safe answer?",
+    opts:[
+      {t:"No. I never invest because someone online tells me to",ok:1},
+      {t:"I'll try 100,000 kip first to test if it really works",why:"Scam apps often let you win small amounts at first so you trust them. Then you put in more."},
+      {t:"Only if you send me more screenshots of your profits",why:"Screenshots are very easy to fake. They prove nothing."},
+      {t:"Only if we do a quick video call together first",why:"Scammers can use deepfake video or a different person. Don't invest at all."}
+    ]},
+  { kind:"choice", task:"Your friend Toui already invested. <b>What should Toui do now?</b>",
+    view:function(){return '<div class="body"><div class="card" style="text-align:center"><div style="font-size:12px;color:#6b7280">StarCoin Pro - balance</div><div style="font-size:28px;font-weight:900;color:#16a34a">US$9,040</div><div style="font-size:13px">Withdraw blocked: pay 15% tax (US$1,356) first</div></div>'+b("Support: Pay the tax today or your account will be frozen.")+'</div>'},
+    hint:"Is that balance real money? Who invented the 'tax'?",
+    opts:[
+      {t:"Stop paying, save screenshots and tell an adult and the police",ok:1},
+      {t:"Pay the tax, because it is small next to the profit",why:"The balance is fake. After the tax there will be another fee, then another."},
+      {t:"Ask support to take the tax out of the profit instead",why:"Support is the scammer. They will always say no and ask for new money."},
+      {t:"Pay half the tax now and promise the rest next week",why:"Any payment goes to the scammer. Stop paying and report it."}
+    ]}
+  ]},
+{ name:"Fake loan app", app:"store",
+  learn:"<b>Get apps only from the official store.</b> Loan apps that want your contacts and photos can use them to shame and threaten you.",
+  steps:[
+  { kind:"flags", task:"Toui finds a loan app. <b>Tap ALL 4 red flags.</b> Don't tap normal details.",
+    hint:"Look at speed, checks, where the app comes from and fees.",
+    view:function(){return bar("QK","#f97316","QuickKip","Download page")+'<div class="body">'+
+      '<div class="card tap" data-f="1">Get 3 million kip in 5 minutes!</div>'+
+      '<div class="card tap" data-f="0">Available in Lao and English.</div>'+
+      '<div class="card tap" data-f="1">No ID, no checks, everyone is approved.</div>'+
+      '<div class="card tap" data-f="1">Download QuickKip.apk from this link.</div>'+
+      '<div class="card tap" data-f="0">App size: 24 MB.</div>'+
+      '<div class="card tap" data-f="1">A 20% service fee is taken before you get the money.</div></div>'},
+    neutral:"That detail is normal. Look for the risky parts."},
+  { kind:"choice", task:"Toui installed it anyway and this pops up. <b>What should he tap?</b>",
+    view:function(){return '<div class="body"><div class="perm"><div style="font-size:30px">&#128101;</div><h4>Allow QuickKip to access your contacts, photos and location?</h4><div style="font-size:13px;color:#6b7280">Needed to check your loan.</div></div></div>'},
+    hint:"A small permission is still a permission. Is the app safe to keep at all?",
+    opts:[
+      {t:"Don't allow, delete the app and tell an adult",ok:1},
+      {t:"Allow only while using the app, then switch it off",why:"A few seconds is enough to copy all your contacts and photos."},
+      {t:"Allow contacts, but don't allow photos or location",why:"With your contacts they can message your family and friends to shame you."},
+      {t:"Allow it now and change it later in Settings",why:"By then the data is already on their server. Deleting later does not bring it back."}
+    ]}
+  ]},
+{ name:"AI voice call from 'Mum'", app:"call",
+  learn:"<b>A voice can be copied.</b> Agree a family code word and always hang up and call back on the usual number.",
+  steps:[
+  { kind:"choice", task:"An unknown number calls. It sounds exactly like your mum. <b>What do you do?</b>",
+    view:function(){return '<div class="who"><div class="avatar" style="background:#64748b">?</div><div style="font-weight:800">+856 20 9915 3308</div><div style="font-size:12px;opacity:.8">on call 00:31</div></div><div class="body">'+b("It's Mum! I had a small accident and lost my phone. This is a nurse's phone.")+b("Please send 2 million kip to this account now. Don't tell Dad, he'll be angry.")+'</div>'},
+    hint:"Your family has a secret code word. Video and stories can be faked.",
+    opts:[
+      {t:"Ask her to say our family code word",ok:1},
+      {t:"Ask her to turn on video so I can see her",why:"Deepfake video can copy a face too. Use a code word or call back on her usual number."},
+      {t:"Ask which hospital she is in and the address",why:"Scammers have a story ready. Details don't prove who is calling."},
+      {t:"Send half now and the rest when I see her",why:"Any money sent to a scammer is lost. Check first with the code word."}
+    ]},
+  { kind:"choice", task:"She says: 'I forgot it, I'm too scared!' <b>What now?</b>",
+    view:function(){return '<div class="who"><div class="avatar" style="background:#64748b">?</div><div style="font-weight:800">+856 20 9915 3308</div><div style="font-size:12px;opacity:.8">on call 01:12</div></div><div class="body">'+b("I can't remember the code, I'm so scared! Please just send it, quickly!")+'</div>'},
+    hint:"Which number do YOU know is really Mum's?",
+    opts:[
+      {t:"Hang up and call Mum on her usual number",ok:1},
+      {t:"Call this number back to check it is really her",why:"That number belongs to the scammer. Use the number you already have saved for Mum."},
+      {t:"Ask her to send a photo of the accident first",why:"Photos are easy to fake or steal. Call her real number."},
+      {t:"Send it, because she sounds really frightened",why:"Fear is the trick. AI can copy her voice and her feelings. Hang up and call back."}
+    ]}
+  ]},
+{ name:"Fake police call", app:"call",
+  learn:"<b>Real police never ask for money on the phone.</b> Hang up and call 1191 yourself. Never install an app for a caller.",
+  steps:[
+  { kind:"flags", task:"A video call from 'police'. <b>Tap ALL 3 red flags.</b> Don't tap normal lines.",
+    hint:"Look for money, secrets and apps.",
+    view:function(){return '<div class="who" style="padding-top:8px"><div class="vid"><span style="font-size:34px">&#128110;</span><span class="badge">POLICE 4471</span></div><div style="font-weight:800">Officer Somsak - Video call</div></div><div class="body">'+
+      '<div class="card tap" data-f="0">This is Officer Somsak from the police.</div>'+
+      '<div class="card tap" data-f="0">A SIM card in your name was used in a crime.</div>'+
+      '<div class="card tap" data-f="1">Pay a 5 million kip guarantee today or we arrest you.</div>'+
+      '<div class="card tap" data-f="1">Don\'t tell your family. This case is secret.</div>'+
+      '<div class="card tap" data-f="1">Install SafeCheck so we can check your phone.</div>'+
+      '<div class="card tap" data-f="0">You can write down my badge number: 4471.</div></div>'},
+    neutral:"That line alone is not the danger. Look for what they want you to do."},
+  { kind:"choice", task:"Final choice. <b>What do you do?</b>",
+    view:function(){return '<div class="who" style="padding-top:8px"><div class="vid"><span style="font-size:34px">&#128110;</span><span class="badge">POLICE 4471</span></div></div><div class="body">'+b("You have 30 minutes. Do you understand?")+'</div>'},
+    hint:"Real police don't do any of these on the phone. Who can you call yourself?",
+    opts:[
+      {t:"Hang up and call the police myself on 1191",ok:1},
+      {t:"Write down the badge number, then pay the guarantee",why:"Badges and uniforms can be fake. Real police never ask for money on a call."},
+      {t:"Ask them to email the arrest warrant to me first",why:"Fake warrants are easy to make. Hang up and call 1191 yourself."},
+      {t:"Install the app, but don't open my bank app after",why:"A remote-control app can see everything on your phone. Never install an app for a caller."}
+    ]}
+  ]}
+];
 
-/* Room 5 branch: fake payment page */
-function payPage(){
-  var r=show(''+
-  '<div class="room browser"><div class="task"><span class="num">5/5</span><span>You tapped the link. <b>Last chance: pay or stop?</b></span></div>'+
-  '<div class="urlbar"><div class="urlpill"><span class="dim">!</span><span>khongexpress-la.fee-pay.cc</span></div></div>'+
-  '<div class="body" style="padding:0;background:#fff">'+
-  '<div class="kx"><div class="avatar" style="background:#fff;color:#b91c1c;width:30px;height:30px">K</div>KhongExpress Payment</div>'+
-  '<div class="payform"><div style="font-weight:700">Delivery fee: 9,900 kip</div>'+
-  '<label>Card number</label><div class="f">0000 0000 0000 0000</div>'+
-  '<label>Expiry / CVV</label><div class="f">MM/YY - 3 digits</div>'+
-  '<label>OTP from your bank (SMS)</label><div class="f">6-digit code</div></div>'+
-  '</div>'+
-  '<div class="choices">'+
-  '<button class="choice" data-c="pay"><span class="k">A</span>Fill in my card and OTP and pay 9,900 kip</button>'+
-  '<button class="choice" data-c="stop"><span class="k">B</span>Stop! A fee page that wants my OTP is a scam. Close it</button>'+
-  '</div></div>',{hud:true,label:"Room 5b - Fake payment page",id:"room5b"});
-  on(r,"[data-c]",function(el){
-    if(el.getAttribute("data-c")==="pay")scammed("3,500,000 kip","The fee was only 9,900 kip, but you gave your card and OTP. The scammers spent 3,500,000 kip. <b>Small fee, big loss.</b>");
-    else{toast("Lucky escape! Next time do not tap the link at all.",2200);setTimeout(win,1300)}
-  });
+/* ---------- game flow ---------- */
+function newGame(){
+  var order=shuffle(WORD.split(""));
+  S={muted:S.muted,room:0,step:0,got:[],order:order,start:0,penalty:0,hints:0,mistakes:0,strikes:0,resets:0,running:false,final:0};
 }
-
-/* ---------- flow ---------- */
 function startScreen(){
-  S={room:0,got:[],start:0,penalty:0,hints:0,scams:0,running:false,muted:S.muted,found:{},final:0};
-  clearInterval(tickT);renderSlots();
+  clearInterval(tickT);newGame();renderHud();
   var r=show(''+
   '<div><div class="lockicon">'+svgLock()+'</div>'+
   '<h1>Scam<br><span>Escape</span> Room</h1>'+
-  '<p>You are <b>Noy</b>, a student in Vientiane. Your phone is full of scams. One wrong tap and you lose your money.</p>'+
+  '<p>Ten rooms. Ten scams. Every answer sounds OK. Only one is really safe.</p>'+
   '<div class="rules">'+
-  '<div><b>1</b> Escape 5 rooms. Each room is a scam.</div>'+
-  '<div><b>2</b> Spot the clue or choose the safe action.</div>'+
-  '<div><b>3</b> Win a code letter in every room.</div>'+
-  '<div><b>4</b> Use the code to open the exit door.</div>'+
+  '<div><b>1</b> Escape 10 rooms to win 10 code letters.</div>'+
+  '<div><b>2</b> Some rooms have two steps or red flags to find.</div>'+
+  '<div><b>3</b> Wrong answer: +20 seconds and a strike.</div>'+
+  '<div><b>4</b> 3 strikes and the room starts again.</div>'+
   '<div><b>!</b> Hints help, but cost 30 seconds.</div></div></div>'+
   '<button class="btn gold" id="go" data-test="start">Start the timer</button>',{cls:"start",light:true,label:"Start screen",id:"start"});
   $("go").addEventListener("click",function(){sfx.good();S.start=Date.now();S.running=true;tickT=setInterval(tick,250);tick();openRoom(0)});
 }
-function openRoom(i){
-  S.room=i;var R=ROOMS[i];
-  var r=show(R.html(),{hud:true,label:R.name,id:"room"+(i+1)});
-  R.bind(r);
+function openRoom(i){S.room=i;S.step=0;S.strikes=0;renderHud();openStep()}
+function openStep(){
+  var R=ROOMS[S.room],st=R.steps[S.step],multi=R.steps.length>1;
+  var dark=R.app==="call";
+  var head='<div class="room '+(dark?"callscr ":"")+(R.app==="browser"?"browser ":"")+(R.app==="chat"&&S.room===5?"tele ":"")+'"><div class="task"><span class="num">'+(S.room+1)+(multi?"."+(S.step+1):"")+'</span><span>'+st.task+'</span></div>';
+  var html=head;
+  if(st.kind==="choice"){
+    html+=st.view()+'<div class="choices">';
+    shuffle(st.opts).forEach(function(o,k){
+      html+='<button class="choice'+(st.mono?" mono":"")+'" data-c="'+(o.ok?"ok":"bad")+'" data-o="'+st.opts.indexOf(o)+'"><span class="k">'+"ABCD"[k]+'</span>'+o.t+'</button>';
+    });
+    html+='</div></div>';
+  }else if(st.kind==="flags"){
+    var need=(st.view().match(/data-f="1"/g)||[]).length;
+    html+=st.view()+'<div class="choices"><div class="flagbar" data-test="flagcount"><span>Red flags found</span><span id="fc">0 / '+need+'</span></div></div></div>';
+  }else if(st.kind==="sos"){
+    html+='<div class="body" id="sosbody"></div><div class="sos"><button class="safe" data-s="1" data-test="safe">Safe</button><button class="scam" data-s="0" data-test="scam">Scam</button></div></div>';
+  }
+  var r=show(html,{hud:true,light:dark,label:"Room "+(S.room+1)+" - "+R.name+(multi?" (step "+(S.step+1)+")":""),id:"room"+(S.room+1)+"-"+(S.step+1)});
+  r.setAttribute("data-kind",st.kind);
+  if(st.kind==="choice"){
+    on(r,".choice",function(el){
+      var o=st.opts[+el.getAttribute("data-o")];
+      if(o.ok){sfx.good();nextStep()}else{el.classList.add("shake");wrong(o.why)}
+    });
+  }else if(st.kind==="flags"){
+    var got=0,need2=r.querySelectorAll("[data-f='1']").length;
+    on(r,".tap",function(el){
+      if(el.classList.contains("found"))return;
+      if(el.getAttribute("data-f")==="1"){el.classList.add("found");sfx.flag();got++;$("fc").textContent=got+" / "+need2;if(got===need2)setTimeout(nextStep,700)}
+      else{el.classList.add("shake");setTimeout(function(){el.classList.remove("shake")},500);wrong(st.neutral)}
+    });
+  }else if(st.kind==="sos"){
+    var items=shuffle(st.items),idx=0;
+    var draw=function(){
+      var it=items[idx];
+      $("sosbody").innerHTML='<div class="prog" data-test="sosprog">Message '+(idx+1)+' of '+items.length+'</div>'+(it.ctx?'<div class="ctx">'+it.ctx+'</div>':'')+sms(it.from,it.t);
+      r.setAttribute("data-safe",it.safe?"1":"0");
+    };
+    draw();
+    on(r,".sos button",function(el){
+      var it=items[idx],ans=el.getAttribute("data-s")==="1";
+      if(ans===!!it.safe){sfx.good();toast((it.safe?"Correct, it's safe. ":"Correct, it's a scam. ")+it.why,1800);idx++;if(idx<items.length)draw();else setTimeout(nextStep,600)}
+      else wrong(it.why,function(){idx=0;});
+    });
+  }
 }
-function scammed(lost,why){
-  sfx.bad();S.scams++;addPenalty(15);
-  var cur=screen.lastElementChild;if(cur)cur.classList.add("shake");
-  setTimeout(function(){
-    var r=show(''+
-    '<div><div class="skull">&#9888;</div><div class="big">You got scammed!</div>'+
-    '<div class="lost">You lost: '+lost+'</div>'+
-    '<div class="why"><b>Why?</b> '+why+'</div></div>'+
-    '<div><div style="font-size:13px;opacity:.85;margin-bottom:8px">+15 seconds. Try the room again.</div><button class="btn" style="background:#fff;color:#b91c1c" id="retry" data-test="retry">Try again</button></div>',
-    {cls:"scammed",light:true,hud:false,label:"You got scammed - "+ROOMS[S.room].name,id:"scammed"});
-    $("retry").addEventListener("click",function(){sfx.tap();openRoom(S.room)});
-  },420);
+function nextStep(){
+  var R=ROOMS[S.room];
+  if(S.step<R.steps.length-1){S.step++;toast("Good! Now a harder step.",1400);openStep()}
+  else unlock();
 }
-function win(){
-  var i=S.room;sfx.good();S.got[i]=CODE[i];renderSlots();
-  var r=show(''+
+function wrong(why,onReset){
+  sfx.bad();S.mistakes++;S.strikes++;addPenalty(20);renderHud();
+  var reset=S.strikes>=3;
+  var box=document.createElement("div");box.className="whybox";box.setAttribute("data-test","why");
+  box.innerHTML='<div class="whycard"><h3>'+(reset?"3 strikes - room reset!":"Not safe!")+'</h3><p><b>Why?</b> '+why+'</p><div class="pen">+20 seconds. Strike '+Math.min(S.strikes,3)+' of 3.'+(reset?" The room starts again from the beginning.":"")+'</div><button class="btn primary" type="button" data-test="why-ok">'+(reset?"Restart the room":"Try again")+'</button></div>';
+  $("wrap").appendChild(box);
+  box.querySelector("button").addEventListener("click",function(){
+    box.remove();
+    if(reset){S.resets++;openRoom(S.room)}
+    else if(ROOMS[S.room].steps[S.step].kind==="choice"){openStep()} /* re-shuffles the options */
+  });
+}
+function unlock(){
+  var i=S.room,L=S.order[i];sfx.good();S.got.push(L);renderHud();
+  show(''+
   '<div><div style="font-size:15px;font-weight:700;opacity:.9">Room '+(i+1)+' cleared!</div>'+
   '<div style="font-size:14px;opacity:.85">You found a code letter</div>'+
-  '<div class="tile" data-test="letter">'+CODE[i]+'</div>'+
+  '<div class="tile" data-test="letter">'+L+'</div>'+
   '<div class="learn">'+ROOMS[i].learn+'</div></div>'+
-  '<button class="btn" style="background:#fff;color:#065f46" id="next" data-test="next">'+(i<4?"Next room":"Go to the exit door")+'</button>',
-  {cls:"unlock",light:true,hud:true,label:ROOMS[i].name+" - Unlocked",id:"unlock"});
-  $("next").addEventListener("click",function(){sfx.tap();if(i<4)openRoom(i+1);else finalRoom()});
+  '<button class="btn" style="background:#fff;color:#065f46" id="next" data-test="next">'+(i<9?"Next room":"Go to the exit door")+'</button>',
+  {cls:"unlock",light:true,hud:true,label:"Room "+(i+1)+" - Unlocked",id:"unlock"});
+  $("next").addEventListener("click",function(){sfx.tap();if(i<9)openRoom(i+1);else finalRoom()});
 }
 function finalRoom(){
-  S.room=5;
-  var pool=["S","E","P","U","A"],typed=[];
-  var r=show(''+
+  S.room=10;S.strikes=0;renderHud();
+  var pool=shuffle(S.got);
+  while(pool.join("")===WORD)pool=shuffle(S.got);
+  var typed=[];
+  show(''+
   '<div class="door" id="door"></div>'+
   '<div style="text-align:center;font-weight:800;font-size:20px">The Exit Door</div>'+
-  '<div style="text-align:center;font-size:14px;color:#cbd5e1;margin-top:4px;line-height:1.45">Put your 5 letters in order.<br>Clue: <b style="color:#facc15">What should you do before you tap any link?</b></div>'+
-  '<div class="ans" id="ans"></div><div class="pool" id="pool"></div>'+
-  '<button class="btn ghost" id="clr" style="background:#334155;color:#fff">Clear</button>',
+  '<div style="text-align:center;font-size:14px;color:#cbd5e1;margin-top:4px;line-height:1.45">Put your 10 letters in order. Two words: 4 + 6 letters.<br>Clue: <b style="color:#facc15">What did you become in this game?</b></div>'+
+  '<div class="ans" id="ans"></div><div class="pool" id="pool" data-test="pool"></div>'+
+  '<div class="rowbtn"><button class="btn ghost" id="undo" style="background:#334155;color:#fff">Undo</button><button class="btn ghost" id="clr" style="background:#334155;color:#fff">Clear</button></div>',
   {cls:"final",light:true,hud:true,label:"Final room - Exit door",id:"final"});
   function draw(){
-    var a="";for(var k=0;k<5;k++)a+='<div class="aslot'+(typed[k]?" f":"")+'">'+(typed[k]?typed[k].l:"")+"</div>";$("ans").innerHTML=a;
+    var a="";for(var k=0;k<10;k++){if(k===4)a+='<div class="aslot gap"></div>';a+='<div class="aslot'+(typed[k]?" f":"")+'">'+(typed[k]?typed[k].l:"")+"</div>"}$("ans").innerHTML=a;
     var p="";pool.forEach(function(l,idx){var used=typed.some(function(t){return t.i===idx});p+='<button class="ptile'+(used?" used":"")+'" data-i="'+idx+'" data-l="'+l+'">'+l+"</button>"});$("pool").innerHTML=p;
-    on($("pool"),".ptile",function(el){sfx.tap();typed.push({i:+el.getAttribute("data-i"),l:el.getAttribute("data-l")});draw();if(typed.length===5)check()});
+    on($("pool"),".ptile",function(el){sfx.tap();typed.push({i:+el.getAttribute("data-i"),l:el.getAttribute("data-l")});draw();if(typed.length===10)check()});
   }
   function check(){
     var w=typed.map(function(t){return t.l}).join("");
-    if(w===CODE.join("")){S.final=(Date.now()-S.start)/1000;S.running=false;clearInterval(tickT);tick();$("door").classList.add("open");sfx.win();setTimeout(winScreen,1100)}
-    else{sfx.bad();addPenalty(5);$("ans").classList.add("shake");toast("The door stays locked. Try another order. <b>+5s</b>");setTimeout(function(){typed=[];draw();$("ans").classList.remove("shake")},600)}
+    if(w===WORD){S.final=(Date.now()-S.start)/1000;S.running=false;clearInterval(tickT);tick();$("door").classList.add("open");sfx.win();setTimeout(winScreen,1100)}
+    else{sfx.bad();S.mistakes++;addPenalty(20);$("ans").classList.add("shake");toast("The door stays locked. <b>+20s</b>. Try another order.");setTimeout(function(){typed=[];draw();$("ans").classList.remove("shake")},600)}
   }
   $("clr").addEventListener("click",function(){typed=[];draw()});
+  $("undo").addEventListener("click",function(){typed.pop();draw()});
   draw();
 }
 function winScreen(){
   var t=elapsed(),rank;
-  if(S.scams===0&&S.hints===0&&t<240)rank="GOLD Scam Detective";
-  else if(S.scams<=2&&t<420)rank="SILVER Scam Spotter";
+  if(S.mistakes<=2&&S.hints===0&&t<480)rank="GOLD Scam Hunter";
+  else if(S.mistakes<=6&&t<780)rank="SILVER Scam Spotter";
   else rank="BRONZE Scam Survivor";
-  var r=show(''+
-  '<div style="text-align:center;font-size:50px" class="pop">&#127881;</div><h1>You escaped!</h1>'+
+  show(''+
+  '<div style="text-align:center;font-size:44px" class="pop">&#127881;</div><h1>You escaped!</h1>'+
+  '<div style="text-align:center;font-weight:900;letter-spacing:3px;color:#facc15">SCAM HUNTER</div>'+
   '<div class="rank" data-test="rank">'+rank+'</div>'+
-  '<div class="stats"><div class="stat"><b data-test="final-time">'+fmt(t)+'</b><span>time</span></div><div class="stat"><b>'+S.hints+'</b><span>hints</span></div><div class="stat"><b>'+S.scams+'</b><span>times scammed</span></div></div>'+
+  '<div class="stats"><div class="stat"><b data-test="final-time">'+fmt(t)+'</b><span>total time</span></div><div class="stat"><b data-test="mistakes">'+S.mistakes+'</b><span>mistakes</span></div><div class="stat"><b data-test="hints">'+S.hints+'</b><span>hints used</span></div></div>'+
   '<div class="poster"><h3>How to stay safe - PAUSE</h3><ol>'+
   '<li>Never share your OTP or password.</li>'+
   '<li>Pay only when you see the item.</li>'+
@@ -481,8 +673,8 @@ function winScreen(){
 
 /* ---------- hints ---------- */
 $("hintBtn").addEventListener("click",function(){
-  if(S.room>5)return;
-  var txt=S.room===5?"It starts with <b>P</b>. It means: stop for a moment and think.":ROOMS[S.room].hint;
+  if(!S.running)return;
+  var txt=S.room>=10?"It starts with <b>SCAM</b>. The second word is a person who looks for something.":ROOMS[S.room].steps[S.step].hint;
   var box=document.createElement("div");box.className="hintbox";box.setAttribute("data-test","hintbox");
   box.innerHTML='<div class="hintcard"><h3>Hint</h3><p>'+txt+'</p><button class="btn primary" type="button">Got it (+30s)</button></div>';
   $("wrap").appendChild(box);S.hints++;addPenalty(30);sfx.tap();
@@ -491,16 +683,14 @@ $("hintBtn").addEventListener("click",function(){
 $("muteBtn").addEventListener("click",function(){S.muted=!S.muted;this.innerHTML=S.muted?"&#128263;":"&#128266;"});
 $("restartTop").addEventListener("click",startScreen);
 
-/* ---------- confetti ---------- */
 function confetti(){
   var c=$("confetti"),w=c.width=c.offsetWidth,h=c.height=c.offsetHeight,x=c.getContext("2d"),ps=[],cols=["#facc15","#f472b6","#60a5fa","#34d399","#f97316"];
   for(var i=0;i<120;i++)ps.push({x:Math.random()*w,y:-Math.random()*h*.5,vx:(Math.random()-.5)*2,vy:2+Math.random()*3,r:4+Math.random()*5,c:cols[i%5],a:Math.random()*6});
   var n=0;(function f(){x.clearRect(0,0,w,h);ps.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.a+=.1;x.save();x.translate(p.x,p.y);x.rotate(p.a);x.fillStyle=p.c;x.fillRect(-p.r/2,-p.r/4,p.r,p.r/2);x.restore()});if(++n<200)requestAnimationFrame(f);else x.clearRect(0,0,w,h)})();
 }
-
-/* ---------- fit phone to window (desktop) ---------- */
-function fit(){var s=$("scaler");if(window.innerWidth<=520){s.style.transform="";return}var avail=window.innerHeight-90;var k=Math.min(1,avail/812);s.style.transform="scale("+k+")";s.style.height=(812*k)+"px"}
+function fit(){var s=$("scaler");if(window.innerWidth<=520){s.style.transform="";s.style.height="";return}var avail=window.innerHeight-90;var k=Math.min(1,avail/812);s.style.transform="scale("+k+")";s.style.height=(812*k)+"px"}
 window.addEventListener("resize",fit);fit();
+window.__game={version:VERSION,state:function(){return S}};
 startScreen();
 })();
 </script>
