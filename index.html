@@ -147,6 +147,8 @@ button{font:inherit;cursor:pointer}
 .payform .f{border:1.5px solid var(--line);border-radius:10px;padding:11px;font-size:15px;color:#9ca3af;background:#fff}
 .kx{background:#b91c1c;color:#fff;padding:14px;display:flex;align-items:center;gap:10px;font-weight:800}
 /* ---------- Final lock ---------- */
+.redpage{z-index:44;animation:slideIn .3s}
+.strikeline{font-size:16px;font-weight:800;margin-bottom:10px;background:rgba(0,0,0,.25);border-radius:12px;padding:8px}
 .final{background:radial-gradient(circle at 50% 10%,#334155,#0f172a 70%);color:#fff;padding:110px 22px 34px}
 .door{width:150px;height:190px;margin:4px auto 14px;border-radius:14px 14px 4px 4px;background:linear-gradient(180deg,#78350f,#451a03);border:6px solid #a16207;position:relative;box-shadow:0 20px 40px rgba(0,0,0,.4);transition:transform .8s}
 .door:after{content:"";position:absolute;right:16px;top:50%;width:14px;height:14px;border-radius:50%;background:#facc15}
@@ -320,7 +322,7 @@ function sms(sender,t){return '<div class="card"><div style="font-size:12px;font
 /* ---------- ROOMS ----------
  step kinds: choice (opts shuffled), flags (tap all red flags), sos (safe or scam) */
 var ROOMS=[
-{ name:"Bank SMS and OTP", app:"sms",
+{ name:"Bank SMS and OTP", lost:"4,800,000 kip", app:"sms",
   learn:"<b>Never share your OTP.</b> Open the bank app yourself or call the number on your card. If your phone suddenly loses signal, your SIM may have been swapped. Call your bank fast.",
   steps:[
   { kind:"choice", task:"A text arrives at 06:58. <b>What do you do first?</b>",
@@ -342,7 +344,7 @@ var ROOMS=[
       {t:"Give the code, because he already knows my details",why:"Knowing your name or card digits is easy for scammers. The OTP is the key to your money. Never share it."}
     ]}
   ]},
-{ name:"A hacked friend asks for money", app:"chat",
+{ name:"A hacked friend asks for money", lost:"800,000 kip", app:"chat",
   learn:"<b>Check with a real call or face to face.</b> A hacked account can copy your friend's style and read old chats.",
   steps:[
   { kind:"flags", task:"Your friend Noy messages you. <b>Tap ALL the red flags.</b> Don't tap normal messages.",
@@ -365,7 +367,7 @@ var ROOMS=[
       {t:"Ask her to send a voice message to prove it is her",why:"Old voice notes can be forwarded and AI can copy voices. Call her on her usual number instead."}
     ]}
   ]},
-{ name:"Fake shop deposit", app:"shop",
+{ name:"Fake shop deposit", lost:"570,000 kip", app:"shop",
   learn:"<b>Pay only when you see the item.</b> A very low price plus deposit first plus a different account name = scam.",
   steps:[
   { kind:"choice", task:"You want a cheap phone. The seller wants a deposit. <b>Choose your reply.</b>",
@@ -378,7 +380,7 @@ var ROOMS=[
       {t:"I'll pay half now and half when the phone arrives",why:"If the phone never comes, the first half is gone. A real shop lets you pay on delivery or in person."}
     ]}
   ]},
-{ name:"Prize and lookalike link", app:"browser",
+{ name:"Prize and lookalike link", lost:"50,000 kip and your details", app:"browser",
   learn:"<b>Check the web address letter by letter.</b> 0 for o, extra words or a strange ending like .win or .cc are warning signs.",
   steps:[
   { kind:"choice", task:"A pop-up says you won. <b>What do you do?</b>",
@@ -400,7 +402,7 @@ var ROOMS=[
       {t:"https://dokchampa-la.cc/news",why:"A dash and .cc at the end: this is a different website, not dokchampa.la."}
     ]}
   ]},
-{ name:"Parcel messages: safe or scam?", app:"sms",
+{ name:"Parcel messages: safe or scam?", lost:"Your card details", app:"sms",
   learn:"<b>Check in the official app, not the link.</b> Some messages are real. Real ones don't ask you to pay through a link.",
   steps:[
   { kind:"sos", task:"Your inbox. <b>Safe or scam?</b> Some are real. You are waiting for a parcel from Thailand.",
@@ -413,7 +415,7 @@ var ROOMS=[
       {from:"MEKONGSTAR",t:"Your OTP is 482913. Do not share this code with anyone, even bank staff.",ctx:"You are logging in to your bank app right now.",safe:1,why:"This was real. You asked for the code yourself. Just don't share it with anyone."}
     ]}
   ]},
-{ name:"Fake job offer", app:"chat",
+{ name:"Fake job offer", lost:"Your passport details", app:"chat",
   learn:"<b>Too good to be true? It is a scam.</b> Some fake jobs take people across borders and force them to work in scam centres. Always check the company with a trusted adult.",
   steps:[
   { kind:"flags", task:"A job advert in a chat group. <b>Tap ALL 4 red flags.</b> Don't tap normal details.",
@@ -436,7 +438,7 @@ var ROOMS=[
       {t:"Apply only if they send a written contract by chat",why:"A fake contract takes two minutes to make. It does not prove the company is real."}
     ]}
   ]},
-{ name:"Romance and investment", app:"chat",
+{ name:"Romance and investment", lost:"US$1,356", app:"chat",
   learn:"<b>Never invest because someone online tells you to.</b> Fake apps show big profits, then ask for a 'tax' or fee to withdraw.",
   steps:[
   { kind:"choice", task:"You met Lin online 3 weeks ago. Lin never does video calls. <b>What do you reply?</b>",
@@ -458,7 +460,7 @@ var ROOMS=[
       {t:"Pay half the tax now and promise the rest next week",why:"Any payment goes to the scammer. Stop paying and report it."}
     ]}
   ]},
-{ name:"Fake loan app", app:"store",
+{ name:"Fake loan app", lost:"Your contacts and photos", app:"store",
   learn:"<b>Get apps only from the official store.</b> Loan apps that want your contacts and photos can use them to shame and threaten you.",
   steps:[
   { kind:"flags", task:"Toui finds a loan app. <b>Tap ALL 4 red flags.</b> Don't tap normal details.",
@@ -481,7 +483,7 @@ var ROOMS=[
       {t:"Allow it now and change it later in Settings",why:"By then the data is already on their server. Deleting later does not bring it back."}
     ]}
   ]},
-{ name:"AI voice call from 'Mum'", app:"call",
+{ name:"AI voice call from 'Mum'", lost:"2,000,000 kip", app:"call",
   learn:"<b>A voice can be copied.</b> Agree a family code word and always hang up and call back on the usual number.",
   steps:[
   { kind:"choice", task:"An unknown number calls. It sounds exactly like your mum. <b>What do you do?</b>",
@@ -503,7 +505,7 @@ var ROOMS=[
       {t:"Send it, because she sounds really frightened",why:"Fear is the trick. AI can copy her voice and her feelings. Hang up and call back."}
     ]}
   ]},
-{ name:"Fake police call", app:"call",
+{ name:"Fake police call", lost:"5,000,000 kip", app:"call",
   learn:"<b>Real police never ask for money on the phone.</b> Hang up and call 1191 yourself. Never install an app for a caller.",
   steps:[
   { kind:"flags", task:"A video call from 'police'. <b>Tap ALL 3 red flags.</b> Don't tap normal lines.",
@@ -571,14 +573,14 @@ function openStep(){
   if(st.kind==="choice"){
     on(r,".choice",function(el){
       var o=st.opts[+el.getAttribute("data-o")];
-      if(o.ok){sfx.good();nextStep()}else{el.classList.add("shake");wrong(o.why)}
+      if(o.ok){sfx.good();nextStep()}else{el.classList.add("shake");wrong(o.why,ROOMS[S.room].lost)}
     });
   }else if(st.kind==="flags"){
     var got=0,need2=r.querySelectorAll("[data-f='1']").length;
     on(r,".tap",function(el){
       if(el.classList.contains("found"))return;
       if(el.getAttribute("data-f")==="1"){el.classList.add("found");sfx.flag();got++;$("fc").textContent=got+" / "+need2;if(got===need2)setTimeout(nextStep,700)}
-      else{el.classList.add("shake");setTimeout(function(){el.classList.remove("shake")},500);wrong(st.neutral)}
+      else{el.classList.add("shake");setTimeout(function(){el.classList.remove("shake")},500);wrong(st.neutral,null,"Not a red flag!")}
     });
   }else if(st.kind==="sos"){
     var items=shuffle(st.items),idx=0;
@@ -591,7 +593,7 @@ function openStep(){
     on(r,".sos button",function(el){
       var it=items[idx],ans=el.getAttribute("data-s")==="1";
       if(ans===!!it.safe){sfx.good();toast((it.safe?"Correct, it's safe. ":"Correct, it's a scam. ")+it.why,1800);idx++;if(idx<items.length)draw();else setTimeout(nextStep,600)}
-      else wrong(it.why,function(){idx=0;});
+      else if(it.safe)wrong(it.why,null,"That one was real!");else wrong(it.why,ROOMS[S.room].lost);
     });
   }
 }
@@ -600,16 +602,21 @@ function nextStep(){
   if(S.step<R.steps.length-1){S.step++;toast("Good! Now a harder step.",1400);openStep()}
   else unlock();
 }
-function wrong(why,onReset){
+function wrong(why,lost,title){
   sfx.bad();S.mistakes++;S.strikes++;addPenalty(20);renderHud();
-  var reset=S.strikes>=3;
-  var box=document.createElement("div");box.className="whybox";box.setAttribute("data-test","why");
-  box.innerHTML='<div class="whycard"><h3>'+(reset?"3 strikes - room reset!":"Not safe!")+'</h3><p><b>Why?</b> '+why+'</p><div class="pen">+20 seconds. Strike '+Math.min(S.strikes,3)+' of 3.'+(reset?" The room starts again from the beginning.":"")+'</div><button class="btn primary" type="button" data-test="why-ok">'+(reset?"Restart the room":"Try again")+'</button></div>';
-  $("wrap").appendChild(box);
+  var reset=S.strikes>=3,cur=screen.lastElementChild;if(cur)cur.classList.add("shake");
+  var box=document.createElement("div");box.className="scr scammed redpage";box.setAttribute("data-test","why");
+  box.innerHTML='<div><div class="skull">&#128680;</div><div class="big">'+(title||"You got scammed!")+'</div>'+
+    (lost?'<div class="lost" data-test="lost">You lost: '+lost+'</div>':'<div style="height:14px"></div>')+
+    '<div class="why"><b>Why?</b> '+why+'</div></div>'+
+    '<div><div class="strikeline" data-test="strikeline">'+(reset?"Strike 3 of 3 - the room starts again":"Strike "+S.strikes+" of 3 (+20 seconds)")+'</div>'+
+    '<button class="btn" type="button" style="background:#fff;color:#b91c1c" data-test="why-ok">'+(reset?"Start the room again":"Try again")+'</button></div>';
+  $("wrap").appendChild(box);setLight(true);hud.classList.add("hidden");
   box.querySelector("button").addEventListener("click",function(){
-    box.remove();
+    sfx.tap();box.remove();setLight(ROOMS[S.room].app==="call");hud.classList.remove("hidden");
+    if(cur)cur.classList.remove("shake");
     if(reset){S.resets++;openRoom(S.room)}
-    else if(ROOMS[S.room].steps[S.step].kind==="choice"){openStep()} /* re-shuffles the options */
+    else if(ROOMS[S.room].steps[S.step].kind==="choice"){openStep()}
   });
 }
 function unlock(){
