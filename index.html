@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Scam Escape Room - Demo Prototype</title>
+<style>
+:root{
+  --bg:#1e1e1e; --panel:#2c2c2c; --ink:#1b1f24; --muted:#6b7280; --line:#e5e7eb;
+  --blue:#2563eb; --green:#16a34a; --red:#dc2626; --amber:#f59e0b; --violet:#7c3aed;
+  --phone-w:390px; --phone-h:812px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;color:var(--ink)}
+button{font:inherit;cursor:pointer}
+/* ---------- Figma-style canvas ---------- */
+.canvas{min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:18px 10px}
+.toolbar{position:fixed;top:0;left:0;right:0;height:40px;background:var(--panel);display:flex;align-items:center;gap:10px;padding:0 14px;color:#ddd;font-size:13px;border-bottom:1px solid #3a3a3a;z-index:5}
+.toolbar .logo{width:18px;height:18px;border-radius:5px;background:conic-gradient(#f24e1e 0 25%,#a259ff 0 50%,#1abcfe 0 75%,#0acf83 0)}
+.toolbar .title{font-weight:600}
+.toolbar .sp{flex:1}
+.toolbar .tbtn{background:#3a3a3a;border:0;color:#eee;border-radius:6px;padding:5px 10px;font-size:12px}
+.toolbar .tbtn:hover{background:#4a4a4a}
+.framelabel{color:#9ca3af;font-size:12px;align-self:center;margin:44px 0 6px;width:var(--phone-w);text-align:left;letter-spacing:.2px}
+.scaler{transform-origin:top center}
+.phone{position:relative;width:var(--phone-w);height:var(--phone-h);border-radius:54px;background:#0b0b0c;padding:12px;box-shadow:0 0 0 2px #3b3b3b,0 30px 80px rgba(0,0,0,.55)}
+.screenwrap{position:relative;width:100%;height:100%;border-radius:42px;overflow:hidden;background:#fff}
+.notch{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:118px;height:32px;background:#0b0b0c;border-radius:20px;z-index:30}
+.status{position:absolute;top:0;left:0;right:0;height:50px;display:flex;align-items:center;justify-content:space-between;padding:6px 30px 0 34px;font-size:15px;font-weight:600;z-index:25;pointer-events:none}
+.status.light{color:#fff}
+.status .icons{display:flex;gap:6px;align-items:center}
+.bars{display:flex;gap:2px;align-items:flex-end}.bars i{display:block;width:3px;background:currentColor;border-radius:1px}
+.batt{width:24px;height:12px;border:1.5px solid currentColor;border-radius:3px;padding:1px;position:relative}.batt:after{content:"";position:absolute;right:-4px;top:3px;width:2px;height:4px;background:currentColor;border-radius:1px}.batt i{display:block;height:100%;width:70%;background:currentColor;border-radius:1px}
+.homebar{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:134px;height:5px;border-radius:3px;background:#111;opacity:.8;z-index:30;pointer-events:none}
+.homebar.light{background:#fff}
+@media (max-width:520px){
+  .toolbar,.framelabel{display:none}
+  .canvas{padding:0;justify-content:flex-start}
+  .scaler{transform:none!important}
+  .phone{width:100vw;height:100dvh;border-radius:0;padding:0;box-shadow:none}
+  .screenwrap{border-radius:0}
+  .notch{display:none}
+}
+/* ---------- Screens & transitions ---------- */
+#screen{position:absolute;inset:0;overflow:hidden}
+.scr{position:absolute;inset:0;display:flex;flex-direction:column;animation:slideIn .38s cubic-bezier(.2,.8,.2,1)}
+.scr.out{animation:slideOut .3s ease forwards}
+@keyframes slideIn{from{transform:translateX(40px);opacity:0}to{transform:none;opacity:1}}
+@keyframes slideOut{to{transform:translateX(-40px);opacity:0}}
+.shake{animation:shake .45s}
+@keyframes shake{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+.pop{animation:pop .5s cubic-bezier(.2,1.6,.4,1)}
+@keyframes pop{from{transform:scale(.3);opacity:0}to{transform:scale(1);opacity:1}}
+/* ---------- HUD ---------- */
+.hud{position:absolute;top:50px;left:0;right:0;height:46px;display:flex;align-items:center;gap:8px;padding:0 12px;z-index:20;background:rgba(17,24,39,.92);color:#fff;backdrop-filter:blur(6px)}
+.hud.hidden{display:none}
+.pill{background:#374151;border-radius:20px;padding:5px 10px;font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;display:flex;align-items:center;gap:5px}
+.pill.flash{background:var(--red);transition:background .2s}
+.slots{display:flex;gap:4px;flex:1;justify-content:center}
+.slot{width:24px;height:28px;border-radius:6px;border:1.5px dashed #6b7280;display:grid;place-items:center;font-weight:800;font-size:14px}
+.slot.got{border:0;background:linear-gradient(135deg,#facc15,#f59e0b);color:#1f2937;animation:pop .5s}
+.hintbtn{background:var(--amber);color:#1f2937;border:0;border-radius:20px;padding:6px 10px;font-size:12px;font-weight:800}
+.mute{background:transparent;border:0;color:#fff;font-size:12px;padding:4px;opacity:.85}
+/* ---------- Room chrome ---------- */
+.room{padding-top:96px;height:100%;display:flex;flex-direction:column;background:#f3f4f6}
+.task{margin:8px 12px 0;background:#111827;color:#fff;border-radius:12px;padding:8px 12px;font-size:13px;line-height:1.35;display:flex;gap:8px;align-items:flex-start}
+.task b{color:#facc15}
+.task .num{background:#facc15;color:#111;border-radius:6px;padding:1px 6px;font-weight:800;font-size:12px;white-space:nowrap}
+.appbar{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#fff;border-bottom:1px solid var(--line)}
+.avatar{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:800;font-size:15px;flex:none}
+.appbar .nm{font-weight:700;font-size:15px}
+.appbar .sub{font-size:12px;color:var(--muted)}
+.body{flex:1;overflow:auto;padding:12px}
+.bubble{max-width:84%;padding:9px 12px;border-radius:18px;font-size:14.5px;line-height:1.38;margin:6px 0;position:relative;word-wrap:break-word}
+.in{background:#e5e7eb;border-bottom-left-radius:6px}
+.outb{background:var(--blue);color:#fff;margin-left:auto;border-bottom-right-radius:6px}
+.meta{font-size:11px;color:var(--muted);text-align:center;margin:6px 0}
+.tap{cursor:pointer;transition:transform .12s,box-shadow .2s,background .2s;outline:2px dashed transparent}
+.tap:hover{outline-color:rgba(37,99,235,.35)}
+.tap:active{transform:scale(.97)}
+.found{background:#fee2e2!important;outline:2px solid var(--red)!important;color:#7f1d1d!important}
+.found:after{content:"RED FLAG";position:absolute;top:-9px;right:8px;background:var(--red);color:#fff;font-size:9px;font-weight:800;padding:2px 6px;border-radius:6px;letter-spacing:.5px}
+.choices{padding:10px 12px 26px;display:flex;flex-direction:column;gap:8px;background:#fff;border-top:1px solid var(--line)}
+.choice{text-align:left;border:1.5px solid var(--line);background:#fff;border-radius:14px;padding:11px 12px;font-size:14px;line-height:1.3;display:flex;gap:10px;align-items:center;transition:all .15s}
+.choice:hover{border-color:var(--blue);background:#eff6ff}
+.choice .k{flex:none;width:26px;height:26px;border-radius:8px;background:#e0e7ff;color:#3730a3;font-weight:800;display:grid;place-items:center;font-size:13px}
+.toast{position:absolute;left:50%;bottom:90px;transform:translateX(-50%) translateY(20px);background:#111827;color:#fff;padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.35;width:86%;text-align:center;opacity:0;transition:all .25s;z-index:40;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.hintbox{position:absolute;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:flex-end;z-index:45}
+.hintcard{background:#fff;width:100%;border-radius:24px 24px 0 0;padding:20px 20px 34px;animation:slideUp .3s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:none}}
+.hintcard h3{margin:0 0 6px;font-size:17px}
+.hintcard p{margin:0 0 14px;font-size:15px;line-height:1.45;color:#374151}
+.btn{display:block;width:100%;border:0;border-radius:14px;padding:14px;font-weight:800;font-size:16px}
+.btn.primary{background:var(--blue);color:#fff}
+.btn.ghost{background:#f3f4f6;color:#111827;margin-top:8px}
+.btn.gold{background:linear-gradient(135deg,#facc15,#f59e0b);color:#1f2937}
+/* ---------- Start ---------- */
+.start{background:radial-gradient(circle at 30% 20%,#4338ca,#111827 70%);color:#fff;padding:90px 26px 34px;justify-content:space-between}
+.start h1{font-size:38px;line-height:1.02;margin:10px 0 10px;letter-spacing:-1px}
+.start h1 span{color:#facc15}
+.start p{font-size:15.5px;line-height:1.5;color:#d1d5db;margin:0 0 10px}
+.lockicon{width:74px;height:74px;border-radius:22px;background:linear-gradient(135deg,#facc15,#f97316);display:grid;place-items:center;box-shadow:0 10px 30px rgba(250,204,21,.35);animation:bob 2.4s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-6px) rotate(-4deg)}}
+.rules{background:rgba(255,255,255,.08);border-radius:16px;padding:12px 14px;font-size:14px;line-height:1.55;color:#e5e7eb}
+.rules div{display:flex;gap:8px}
+.rules b{color:#facc15}
+/* ---------- Scammed ---------- */
+.scammed{background:linear-gradient(180deg,#7f1d1d,#dc2626);color:#fff;padding:110px 26px 34px;text-align:center;justify-content:space-between}
+.scammed .big{font-size:34px;font-weight:900;margin:12px 0 6px;letter-spacing:-.5px}
+.scammed .lost{display:inline-block;background:rgba(0,0,0,.25);border-radius:12px;padding:6px 12px;font-weight:800;margin:8px 0 14px;font-variant-numeric:tabular-nums}
+.scammed .why{background:#fff;color:#111827;border-radius:18px;padding:16px;text-align:left;font-size:15px;line-height:1.45}
+.scammed .why b{color:var(--red)}
+.skull{font-size:64px;line-height:1;animation:pop .5s}
+/* ---------- Unlock ---------- */
+.unlock{background:linear-gradient(180deg,#064e3b,#16a34a);color:#fff;padding:110px 26px 34px;text-align:center;justify-content:space-between}
+.tile{width:110px;height:130px;margin:16px auto;border-radius:22px;background:linear-gradient(135deg,#fde047,#f59e0b);color:#1f2937;font-size:76px;font-weight:900;display:grid;place-items:center;box-shadow:0 14px 40px rgba(0,0,0,.3);animation:flip .8s cubic-bezier(.2,.8,.2,1)}
+@keyframes flip{from{transform:rotateY(180deg) scale(.4);opacity:0}to{transform:none;opacity:1}}
+.unlock .learn{background:rgba(255,255,255,.14);border-radius:16px;padding:14px;font-size:15px;line-height:1.45;text-align:left}
+/* ---------- Specific app looks ---------- */
+.sms .appbar{justify-content:center;flex-direction:column;gap:2px;text-align:center}
+.qr{width:120px;height:120px;background:#fff;padding:8px;border-radius:10px;margin-top:6px;display:grid;grid-template-columns:repeat(11,1fr);gap:1px}
+.qr i{background:#111;border-radius:1px}.qr i.w{background:#fff}
+.listing{display:flex;gap:10px;background:#fff;border-radius:14px;padding:10px;margin-bottom:8px;border:1px solid var(--line)}
+.bike{width:84px;height:66px;border-radius:10px;background:linear-gradient(135deg,#bfdbfe,#93c5fd);display:grid;place-items:center;flex:none}
+.tele .appbar{background:#2aabee;color:#fff;border:0}.tele .appbar .sub{color:#e0f2fe}
+.tele .body{background:#cfe3d0 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Ccircle cx='20' cy='20' r='2' fill='%23b7d3b9'/%3E%3C/svg%3E")}
+.tele .in{background:#fff}
+.office{height:90px;border-radius:12px;background:linear-gradient(135deg,#fcd34d,#fb7185,#818cf8);margin-top:6px;display:grid;place-items:center;color:#fff;font-weight:800;font-size:13px;text-shadow:0 1px 3px rgba(0,0,0,.3)}
+.browser .urlbar{background:#f1f3f4;padding:8px 10px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--line)}
+.urlpill{flex:1;background:#fff;border-radius:20px;padding:8px 12px;font-size:14px;display:flex;gap:6px;align-items:center;position:relative;color:#202124}
+.urlpill .dim{color:#5f6368}
+.prize{background:linear-gradient(180deg,#ff5a1f,#ee4d2d);color:#fff;padding:16px;text-align:center}
+.prize h2{margin:4px 0;font-size:24px}
+.phoneimg{width:110px;height:150px;margin:10px auto;border-radius:22px;background:linear-gradient(160deg,#1f2937,#6b7280);border:5px solid #111;position:relative}
+.phoneimg:before{content:"";position:absolute;top:10px;left:10px;width:34px;height:34px;border-radius:10px;background:#111;box-shadow:inset 0 0 0 4px #374151}
+.count{display:inline-block;background:#fff;color:#ee4d2d;border-radius:10px;padding:6px 12px;font-weight:900;font-variant-numeric:tabular-nums;position:relative}
+.claim{display:block;margin:12px auto 0;background:#facc15;color:#7c2d12;border:0;border-radius:14px;padding:14px 22px;font-weight:900;font-size:17px;box-shadow:0 6px 0 #b45309;animation:pulse 1.2s infinite}
+@keyframes pulse{50%{transform:scale(1.05)}}
+.fine{font-size:11px;color:#6b7280;text-align:center;padding:10px;position:relative}
+.zoom{position:absolute;left:10px;right:10px;top:250px;background:#111827;color:#fff;border-radius:16px;padding:14px;z-index:42;font-size:14px;line-height:1.45;animation:pop .4s}
+.zoom .u{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:18px;background:#fff;color:#111;border-radius:8px;padding:6px 8px;margin:8px 0;display:block}
+.zoom .u em{font-style:normal;background:#fecaca;color:#b91c1c;border-radius:4px;padding:0 2px}
+.payform{padding:14px}
+.payform label{display:block;font-size:12px;color:var(--muted);margin:10px 0 4px}
+.payform .f{border:1.5px solid var(--line);border-radius:10px;padding:11px;font-size:15px;color:#9ca3af;background:#fff}
+.kx{background:#b91c1c;color:#fff;padding:14px;display:flex;align-items:center;gap:10px;font-weight:800}
+/* ---------- Final lock ---------- */
+.final{background:radial-gradient(circle at 50% 10%,#334155,#0f172a 70%);color:#fff;padding:110px 22px 34px}
+.door{width:150px;height:190px;margin:4px auto 14px;border-radius:14px 14px 4px 4px;background:linear-gradient(180deg,#78350f,#451a03);border:6px solid #a16207;position:relative;box-shadow:0 20px 40px rgba(0,0,0,.4);transition:transform .8s}
+.door:after{content:"";position:absolute;right:16px;top:50%;width:14px;height:14px;border-radius:50%;background:#facc15}
+.door.open{transform:perspective(500px) rotateY(-70deg);transform-origin:left}
+.ans{display:flex;justify-content:center;gap:8px;margin:10px 0}
+.aslot{width:48px;height:56px;border-radius:12px;border:2px dashed #64748b;display:grid;place-items:center;font-size:28px;font-weight:900}
+.aslot.f{border:0;background:#f8fafc;color:#0f172a}
+.pool{display:flex;justify-content:center;gap:8px;margin:14px 0}
+.ptile{width:52px;height:60px;border-radius:12px;border:0;background:linear-gradient(135deg,#fde047,#f59e0b);color:#1f2937;font-size:28px;font-weight:900;box-shadow:0 5px 0 #b45309}
+.ptile.used{opacity:.2;pointer-events:none}
+/* ---------- Win ---------- */
+.win{background:linear-gradient(180deg,#1e1b4b,#4338ca);color:#fff;padding:100px 22px 30px;overflow:auto}
+.win h1{font-size:34px;margin:6px 0;text-align:center}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.stat{background:rgba(255,255,255,.12);border-radius:14px;padding:10px;text-align:center}
+.stat b{display:block;font-size:20px;font-variant-numeric:tabular-nums}
+.stat span{font-size:11px;color:#c7d2fe}
+.rank{text-align:center;font-weight:900;font-size:18px;margin:6px 0 12px}
+.poster{background:#fff;color:#111827;border-radius:18px;padding:14px 16px}
+.poster h3{margin:0 0 8px;font-size:16px}
+.poster ol{margin:0;padding-left:20px;font-size:14px;line-height:1.55}
+#confetti{position:absolute;inset:0;pointer-events:none;z-index:50}
+</style>
+</head>
+<body>
+<div class="toolbar">
+  <div class="logo"></div>
+  <div class="title">Scam Escape Room</div>
+  <div style="color:#9ca3af">/ Prototype</div>
+  <div class="sp"></div>
+  <button class="tbtn" id="restartTop" type="button">Restart</button>
+</div>
+<div class="canvas">
+  <div class="framelabel" id="frameLabel">Start</div>
+  <div class="scaler" id="scaler">
+    <div class="phone">
+      <div class="screenwrap" id="wrap">
+        <div class="notch"></div>
+        <div class="status" id="status"><span id="clock">9:41</span><span class="icons"><span class="bars"><i style="height:4px"></i><i style="height:6px"></i><i style="height:8px"></i><i style="height:10px"></i></span><span style="font-size:12px">4G</span><span class="batt"><i></i></span></span></div>
+        <div class="hud hidden" id="hud">
+          <div class="pill" id="timer" title="Time">&#9201; <span id="time">0:00</span></div>
+          <div class="slots" id="slots"></div>
+          <button class="hintbtn" id="hintBtn" type="button" data-test="hint">Hint +30s</button>
+          <button class="mute" id="muteBtn" type="button" aria-label="Sound on or off">&#128266;</button>
+        </div>
+        <div id="screen"></div>
+        <div class="toast" id="toast"></div>
+        <canvas id="confetti"></canvas>
+        <div class="homebar" id="homebar"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+"use strict";
+var CODE=["P","A","U","S","E"];
+var S={room:0,got:[],start:0,penalty:0,hints:0,scams:0,running:false,muted:false,found:{}};
+var $=function(id){return document.getElementById(id)};
+var screen=$("screen"),hud=$("hud"),toastEl=$("toast");
+var tickT=null,countT=null;
+
+/* ---------- sound (Web Audio, no files) ---------- */
+var ac=null;
+function tone(seq){
+  if(S.muted)return;
+  try{
+    ac=ac||new (window.AudioContext||window.webkitAudioContext)();
+    var t=ac.currentTime;
+    seq.forEach(function(n){
+      var o=ac.createOscillator(),g=ac.createGain();
+      o.type=n[3]||"sine";o.frequency.value=n[0];
+      g.gain.setValueAtTime(0.0001,t+n[1]);
+      g.gain.exponentialRampToValueAtTime(0.18,t+n[1]+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001,t+n[1]+n[2]);
+      o.connect(g);g.connect(ac.destination);o.start(t+n[1]);o.stop(t+n[1]+n[2]+0.05);
+    });
+  }catch(e){}
+}
+var sfx={
+  good:function(){tone([[660,0,.12],[880,.1,.12],[1320,.2,.25]])},
+  bad:function(){tone([[300,0,.25,"sawtooth"],[200,.18,.4,"sawtooth"]])},
+  tap:function(){tone([[520,0,.06,"triangle"]])},
+  flag:function(){tone([[740,0,.08],[990,.07,.12]])},
+  win:function(){tone([[523,0,.15],[659,.12,.15],[784,.24,.15],[1047,.36,.4]])}
+};
+
+/* ---------- helpers ---------- */
+function fmt(s){s=Math.max(0,Math.floor(s));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")}
+function elapsed(){return (S.running?(Date.now()-S.start)/1000:S.final)+S.penalty}
+function tick(){$("time").textContent=fmt(elapsed());var d=new Date();$("clock").textContent=d.getHours()+":"+String(d.getMinutes()).padStart(2,"0")}
+function addPenalty(sec){S.penalty+=sec;var p=$("timer");p.classList.add("flash");setTimeout(function(){p.classList.remove("flash")},450);tick()}
+var toastT=null;
+function toast(msg,ms){toastEl.innerHTML=msg;toastEl.classList.add("show");clearTimeout(toastT);toastT=setTimeout(function(){toastEl.classList.remove("show")},ms||2200)}
+function renderSlots(){var h="";for(var i=0;i<5;i++){var g=S.got[i];h+='<div class="slot'+(g?" got":"")+'">'+(g||"?")+"</div>"}$("slots").innerHTML=h}
+function setLight(light){$("status").classList.toggle("light",light);$("homebar").classList.toggle("light",light)}
+function show(html,opts){
+  opts=opts||{};
+  clearInterval(countT);
+  var old=screen.firstElementChild;
+  var d=document.createElement("div");d.className="scr "+(opts.cls||"");d.innerHTML=html;
+  if(old){old.classList.add("out");setTimeout(function(){if(old.parentNode)old.parentNode.removeChild(old)},300)}
+  screen.appendChild(d);
+  hud.classList.toggle("hidden",!opts.hud);
+  setLight(!!opts.light);
+  $("frameLabel").textContent=opts.label||"";
+  screen.setAttribute("data-screen",opts.id||"");
+  return d;
+}
+function on(root,sel,fn){root.querySelectorAll(sel).forEach(function(el){el.addEventListener("click",function(e){fn(el,e)})})}
+function svgLock(){return '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#1f2937" stroke-width="2.4" stroke-linecap="round"><rect x="4" y="11" width="16" height="10" rx="2.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/><circle cx="12" cy="16" r="1.4" fill="#1f2937"/></svg>'}
+function qr(){var h="",seed=7;for(var i=0;i<121;i++){seed=(seed*9301+49297)%233280;var r=i%11,c=Math.floor(i/11);var finder=(r<3&&c<3)||(r>7&&c<3)||(r<3&&c>7);h+='<i class="'+((finder||seed/233280>.5)?"":"w")+'"></i>'}return '<div class="qr">'+h+"</div>"}
+
+/* ---------- ROOMS ---------- */
+var ROOMS=[
+{ name:"Room 1 - Bank SMS", hint:"Read the <b>second</b> message carefully. What does the real bank say about the code?",
+  learn:"<b>Never share your OTP.</b> A real bank will never ask for it. Not by SMS, not by phone, not in chat.",
+  html:function(){return ''+
+  '<div class="room sms"><div class="task"><span class="num">1/5</span><span>You get these messages. <b>What do you do?</b></span></div>'+
+  '<div class="appbar"><div class="avatar" style="background:#9ca3af">?</div><div class="nm">+856 20 5839 1147</div><div class="sub">Text message - Today 07:12</div></div>'+
+  '<div class="body">'+
+  '<div class="meta">Today 07:12</div>'+
+  '<div class="bubble in">MekongStar Bank: Your account is <b>LOCKED</b> because of strange activity. Reply with the 6-digit code we sent you in <b>10 minutes</b> or you will lose your money.</div>'+
+  '<div class="meta">Today 07:13 - from MEKONGSTAR</div>'+
+  '<div class="bubble in">MekongStar Bank OTP: <b>482913</b>. Do not share this code with anyone. Bank staff will never ask for it.</div>'+
+  '</div>'+
+  '<div class="choices">'+
+  '<button class="choice" data-c="bad1"><span class="k">A</span>Reply 482913 fast, so my account is safe</button>'+
+  '<button class="choice" data-c="bad2"><span class="k">B</span>Call +856 20 5839 1147 back and ask what is wrong</button>'+
+  '<button class="choice" data-c="ok"><span class="k">C</span>Do not reply. Call the bank number on the back of my card</button>'+
+  '</div></div>'},
+  bind:function(r){on(r,"[data-c]",function(el){var c=el.getAttribute("data-c");
+    if(c==="ok")win();
+    else if(c==="bad1")scammed("4,800,000 kip","The scammer used your OTP to log in and empty your account. <b>A bank will never ask for your OTP.</b>");
+    else scammed("4,800,000 kip","That number belongs to the scammer. On the phone they trick you into saying the code. <b>Only use the number on your card or the official app.</b>");})}
+},
+{ name:"Room 2 - Marketplace deal", hint:"Who gets the money? Why is the seller in such a hurry? What is the only safe time to pay?",
+  learn:"<b>Pay only when you see the item.</b> Cheap price + hurry + deposit first = scam.",
+  html:function(){return ''+
+  '<div class="room"><div class="task"><span class="num">2/5</span><span>You want to buy a motorbike online. <b>Choose your reply.</b></span></div>'+
+  '<div class="appbar"><div class="avatar" style="background:#1877f2">LM</div><div><div class="nm">LaoMarket - Toui Bikes</div><div class="sub">Active 2 min ago - joined 3 days ago</div></div></div>'+
+  '<div class="body">'+
+  '<div class="listing"><div class="bike"><svg width="56" height="40" viewBox="0 0 56 40" fill="none" stroke="#1e3a8a" stroke-width="3"><circle cx="12" cy="28" r="9"/><circle cx="44" cy="28" r="9"/><path d="M12 28l10-14h12l10 14M22 14l-4-6h-6M34 14l4-6h6"/></svg></div><div><div style="font-weight:800">Honda Wave 110 (2021)</div><div style="color:#16a34a;font-weight:800">2,900,000 kip</div><div style="font-size:12px;color:#6b7280">Vientiane - Like new</div></div></div>'+
+  '<div class="bubble in">Hi! Bike still here. Very cheap because I move to Thailand tomorrow.</div>'+
+  '<div class="bubble in">5 people want it! Send <b>1,000,000 kip deposit now</b> and I keep it for you.</div>'+
+  '<div class="bubble in">Scan this QR. It is my cousin\'s account, my account has a problem.'+qr()+'</div>'+
+  '</div>'+
+  '<div class="choices">'+
+  '<button class="choice" data-c="bad1"><span class="k">A</span>OK! I will send the deposit now before someone else buys it</button>'+
+  '<button class="choice" data-c="bad2"><span class="k">B</span>Send me more photos first, then I will pay the deposit</button>'+
+  '<button class="choice" data-c="ok"><span class="k">C</span>I will pay only when I see the bike and the papers. Let\'s meet at a busy place</button>'+
+  '</div></div>'},
+  bind:function(r){on(r,"[data-c]",function(el){var c=el.getAttribute("data-c");
+    if(c==="ok"){var b=r.querySelector(".body");b.insertAdjacentHTML("beforeend",'<div class="bubble outb">I will pay only when I see the bike and the papers.</div><div class="meta" style="color:#dc2626;font-weight:700">Toui Bikes blocked you. This account is no longer available.</div>');b.scrollTop=9999;r.querySelectorAll(".choice").forEach(function(x){x.disabled=true});setTimeout(win,1400)}
+    else if(c==="bad1")scammed("1,000,000 kip","After you paid, the seller blocked you. There was no bike. <b>Never pay a deposit before you see the item.</b>");
+    else scammed("1,000,000 kip","Photos are easy to copy from the internet. The seller sent nice photos, you paid and they disappeared. <b>Photos are not proof.</b>");})}
+},
+{ name:"Room 3 - Dream job chat", hint:"Look for 3 things: <b>too much money</b>, <b>too much hurry</b> and <b>asking for things you should keep</b>.",
+  learn:"<b>Too good to be true = scam.</b> Fake jobs can trap people in scam compounds. Never send your passport.",
+  html:function(){return ''+
+  '<div class="room tele"><div class="task"><span class="num">3/5</span><span>A job offer arrives. <b>Tap 3 red flags.</b> Found: <b id="fc">0</b>/3</span></div>'+
+  '<div class="appbar"><div class="avatar" style="background:#f59e0b">GL</div><div><div class="nm">Golden Lotus HR</div><div class="sub">@gl_hr_jobs2026 - not in your contacts</div></div></div>'+
+  '<div class="body">'+
+  '<div class="bubble in tap" data-f="0">Hello Noy! We saw your profile online.</div>'+
+  '<div class="bubble in tap" data-f="1">Easy online job in Bangkok. No experience needed. Salary <b>$1,800 a month</b>!</div>'+
+  '<div class="bubble in tap" data-f="0">Our office is very modern. See photo:<div class="office">GOLDEN LOTUS OFFICE</div></div>'+
+  '<div class="bubble in tap" data-f="1">Free flight and visa. Only 2 places left. <b>Answer in 1 hour!</b></div>'+
+  '<div class="bubble in tap" data-f="1">Send a photo of your <b>passport</b> and 2,000,000 kip <b>training fee</b> today.</div>'+
+  '</div>'+
+  '<div class="choices"><button class="choice" data-c="apply" style="background:#2aabee;color:#fff;border-color:#2aabee;justify-content:center;font-weight:800">Apply now and send passport</button></div>'+
+  '</div>'},
+  bind:function(r){S.found={};var n=0;
+    on(r,"[data-f]",function(el){
+      if(el.classList.contains("found"))return;
+      if(el.getAttribute("data-f")==="1"){el.classList.add("found");n++;$("fc").textContent=n;sfx.flag();if(n>=3)setTimeout(win,700)}
+      else{sfx.tap();addPenalty(5);toast("This part looks normal. Keep looking. <b>+5s</b>")}
+    });
+    on(r,"[data-c=apply]",function(){scammed("Your freedom","Fake job offers trick people into scam compounds. They take your passport and you cannot leave. <b>Real jobs never ask for a fee or your passport in chat.</b>")})}
+},
+{ name:"Room 4 - Lucky prize", hint:"Look at the <b>very top</b> of the screen. Read it letter by letter. The real shop is laoshop.la",
+  learn:"<b>Check the web address letter by letter.</b> Scammers use lookalike addresses like 1aoshop instead of laoshop.",
+  html:function(){return ''+
+  '<div class="room browser"><div class="task"><span class="num">4/5</span><span>You won a prize?! <b>Tap the clue that PROVES this page is fake.</b></span></div>'+
+  '<div class="urlbar"><div class="urlpill tap" data-t="url"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5f6368" stroke-width="2.4"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span>1aoshop-prize.win<span class="dim">/iphone</span></span></div></div>'+
+  '<div class="body" style="padding:0;background:#fff">'+
+  '<div class="prize"><div style="font-size:13px;font-weight:700;opacity:.9">LaoShop Lucky Day</div><h2>CONGRATULATIONS!</h2><div style="font-size:14px">You are visitor number 1,000,000.<br>You won an <b>iPhone 17 Pro</b>!</div>'+
+  '<div class="phoneimg tap" data-t="img"></div>'+
+  '<div class="count tap" data-t="count">Offer ends in <span id="cd">4:59</span></div>'+
+  '<button class="claim" data-t="claim">CLAIM MY PRIZE</button>'+
+  '<div style="font-size:12px;margin-top:10px;opacity:.9">Pay only 49,000 kip for delivery</div></div>'+
+  '<div class="fine tap" data-t="fine">&copy; 2026 LaoShop. All rights reserved. Terms - Privacy</div>'+
+  '</div></div>'},
+  bind:function(r){
+    var s=299;countT=setInterval(function(){s--;var e=$("cd");if(e)e.textContent=fmt(s);if(s<=0)clearInterval(countT)},1000);
+    on(r,"[data-t]",function(el){var t=el.getAttribute("data-t");
+      if(t==="url"){sfx.flag();el.classList.add("found");var z=document.createElement("div");z.className="zoom";z.innerHTML='Look closely:<span class="u"><em>1</em>aoshop-prize<em>.win</em></span>The first letter is the number <b>1</b>, not the letter <b>l</b>. And the real shop is <b>laoshop.la</b>, not .win';r.appendChild(z);setTimeout(win,2300)}
+      else if(t==="claim"){scammed("49,000 kip + your card","You typed your card number to pay for delivery. There is no iPhone and the scammers now have your card. <b>Check the web address first.</b>")}
+      else if(t==="count"){sfx.tap();addPenalty(5);toast("Good thinking: hurry is a red flag. But find the clue that <b>proves</b> it is fake. <b>+5s</b>",2800)}
+      else{sfx.tap();addPenalty(5);toast("Logos and pictures are easy to copy. Keep looking. <b>+5s</b>")}
+    })}
+},
+{ name:"Room 5 - Parcel fee", hint:"A small fee can be a big trap. Where should you check your parcel: in the link, or in the official app?",
+  learn:"<b>Check in the official app, not the link.</b> Small fee links steal your card and OTP.",
+  html:function(){return ''+
+  '<div class="room sms"><div class="task"><span class="num">5/5</span><span>You are waiting for a parcel. <b>What do you do?</b></span></div>'+
+  '<div class="appbar"><div class="avatar" style="background:#b91c1c">K</div><div class="nm">KhongExpres</div><div class="sub">Text message - Today 16:40</div></div>'+
+  '<div class="body">'+
+  '<div class="meta">Today 16:40</div>'+
+  '<div class="bubble in">KhongExpres: Your parcel LA2026-88412 cannot be delivered. The address is wrong. Pay <b>9,900 kip</b> fee in 24 hours or it goes back: <span style="color:#2563eb;text-decoration:underline">http://khongexpress-la.fee-pay.cc</span></div>'+
+  '</div>'+
+  '<div class="choices">'+
+  '<button class="choice" data-c="link"><span class="k">A</span>Tap the link. It is only 9,900 kip</button>'+
+  '<button class="choice" data-c="reply"><span class="k">B</span>Reply: "Who are you? Stop sending messages!"</button>'+
+  '<button class="choice" data-c="ok"><span class="k">C</span>Open the real KhongExpress app and check the tracking number</button>'+
+  '</div></div>'},
+  bind:function(r){on(r,"[data-c]",function(el){var c=el.getAttribute("data-c");
+    if(c==="ok")win();
+    else if(c==="reply")scammed("Your phone number","Replying tells the scammers your number is real. Now you get more scam messages every day. <b>Do not reply. Delete and block.</b>");
+    else payPage();})}
+}];
+
+/* Room 5 branch: fake payment page */
+function payPage(){
+  var r=show(''+
+  '<div class="room browser"><div class="task"><span class="num">5/5</span><span>You tapped the link. <b>Last chance: pay or stop?</b></span></div>'+
+  '<div class="urlbar"><div class="urlpill"><span class="dim">!</span><span>khongexpress-la.fee-pay.cc</span></div></div>'+
+  '<div class="body" style="padding:0;background:#fff">'+
+  '<div class="kx"><div class="avatar" style="background:#fff;color:#b91c1c;width:30px;height:30px">K</div>KhongExpress Payment</div>'+
+  '<div class="payform"><div style="font-weight:700">Delivery fee: 9,900 kip</div>'+
+  '<label>Card number</label><div class="f">0000 0000 0000 0000</div>'+
+  '<label>Expiry / CVV</label><div class="f">MM/YY - 3 digits</div>'+
+  '<label>OTP from your bank (SMS)</label><div class="f">6-digit code</div></div>'+
+  '</div>'+
+  '<div class="choices">'+
+  '<button class="choice" data-c="pay"><span class="k">A</span>Fill in my card and OTP and pay 9,900 kip</button>'+
+  '<button class="choice" data-c="stop"><span class="k">B</span>Stop! A fee page that wants my OTP is a scam. Close it</button>'+
+  '</div></div>',{hud:true,label:"Room 5b - Fake payment page",id:"room5b"});
+  on(r,"[data-c]",function(el){
+    if(el.getAttribute("data-c")==="pay")scammed("3,500,000 kip","The fee was only 9,900 kip, but you gave your card and OTP. The scammers spent 3,500,000 kip. <b>Small fee, big loss.</b>");
+    else{toast("Lucky escape! Next time do not tap the link at all.",2200);setTimeout(win,1300)}
+  });
+}
+
+/* ---------- flow ---------- */
+function startScreen(){
+  S={room:0,got:[],start:0,penalty:0,hints:0,scams:0,running:false,muted:S.muted,found:{},final:0};
+  clearInterval(tickT);renderSlots();
+  var r=show(''+
+  '<div><div class="lockicon">'+svgLock()+'</div>'+
+  '<h1>Scam<br><span>Escape</span> Room</h1>'+
+  '<p>You are <b>Noy</b>, a student in Vientiane. Your phone is full of scams. One wrong tap and you lose your money.</p>'+
+  '<div class="rules">'+
+  '<div><b>1</b> Escape 5 rooms. Each room is a scam.</div>'+
+  '<div><b>2</b> Spot the clue or choose the safe action.</div>'+
+  '<div><b>3</b> Win a code letter in every room.</div>'+
+  '<div><b>4</b> Use the code to open the exit door.</div>'+
+  '<div><b>!</b> Hints help, but cost 30 seconds.</div></div></div>'+
+  '<button class="btn gold" id="go" data-test="start">Start the timer</button>',{cls:"start",light:true,label:"Start screen",id:"start"});
+  $("go").addEventListener("click",function(){sfx.good();S.start=Date.now();S.running=true;tickT=setInterval(tick,250);tick();openRoom(0)});
+}
+function openRoom(i){
+  S.room=i;var R=ROOMS[i];
+  var r=show(R.html(),{hud:true,label:R.name,id:"room"+(i+1)});
+  R.bind(r);
+}
+function scammed(lost,why){
+  sfx.bad();S.scams++;addPenalty(15);
+  var cur=screen.lastElementChild;if(cur)cur.classList.add("shake");
+  setTimeout(function(){
+    var r=show(''+
+    '<div><div class="skull">&#9888;</div><div class="big">You got scammed!</div>'+
+    '<div class="lost">You lost: '+lost+'</div>'+
+    '<div class="why"><b>Why?</b> '+why+'</div></div>'+
+    '<div><div style="font-size:13px;opacity:.85;margin-bottom:8px">+15 seconds. Try the room again.</div><button class="btn" style="background:#fff;color:#b91c1c" id="retry" data-test="retry">Try again</button></div>',
+    {cls:"scammed",light:true,hud:false,label:"You got scammed - "+ROOMS[S.room].name,id:"scammed"});
+    $("retry").addEventListener("click",function(){sfx.tap();openRoom(S.room)});
+  },420);
+}
+function win(){
+  var i=S.room;sfx.good();S.got[i]=CODE[i];renderSlots();
+  var r=show(''+
+  '<div><div style="font-size:15px;font-weight:700;opacity:.9">Room '+(i+1)+' cleared!</div>'+
+  '<div style="font-size:14px;opacity:.85">You found a code letter</div>'+
+  '<div class="tile" data-test="letter">'+CODE[i]+'</div>'+
+  '<div class="learn">'+ROOMS[i].learn+'</div></div>'+
+  '<button class="btn" style="background:#fff;color:#065f46" id="next" data-test="next">'+(i<4?"Next room":"Go to the exit door")+'</button>',
+  {cls:"unlock",light:true,hud:true,label:ROOMS[i].name+" - Unlocked",id:"unlock"});
+  $("next").addEventListener("click",function(){sfx.tap();if(i<4)openRoom(i+1);else finalRoom()});
+}
+function finalRoom(){
+  S.room=5;
+  var pool=["S","E","P","U","A"],typed=[];
+  var r=show(''+
+  '<div class="door" id="door"></div>'+
+  '<div style="text-align:center;font-weight:800;font-size:20px">The Exit Door</div>'+
+  '<div style="text-align:center;font-size:14px;color:#cbd5e1;margin-top:4px;line-height:1.45">Put your 5 letters in order.<br>Clue: <b style="color:#facc15">What should you do before you tap any link?</b></div>'+
+  '<div class="ans" id="ans"></div><div class="pool" id="pool"></div>'+
+  '<button class="btn ghost" id="clr" style="background:#334155;color:#fff">Clear</button>',
+  {cls:"final",light:true,hud:true,label:"Final room - Exit door",id:"final"});
+  function draw(){
+    var a="";for(var k=0;k<5;k++)a+='<div class="aslot'+(typed[k]?" f":"")+'">'+(typed[k]?typed[k].l:"")+"</div>";$("ans").innerHTML=a;
+    var p="";pool.forEach(function(l,idx){var used=typed.some(function(t){return t.i===idx});p+='<button class="ptile'+(used?" used":"")+'" data-i="'+idx+'" data-l="'+l+'">'+l+"</button>"});$("pool").innerHTML=p;
+    on($("pool"),".ptile",function(el){sfx.tap();typed.push({i:+el.getAttribute("data-i"),l:el.getAttribute("data-l")});draw();if(typed.length===5)check()});
+  }
+  function check(){
+    var w=typed.map(function(t){return t.l}).join("");
+    if(w===CODE.join("")){S.final=(Date.now()-S.start)/1000;S.running=false;clearInterval(tickT);tick();$("door").classList.add("open");sfx.win();setTimeout(winScreen,1100)}
+    else{sfx.bad();addPenalty(5);$("ans").classList.add("shake");toast("The door stays locked. Try another order. <b>+5s</b>");setTimeout(function(){typed=[];draw();$("ans").classList.remove("shake")},600)}
+  }
+  $("clr").addEventListener("click",function(){typed=[];draw()});
+  draw();
+}
+function winScreen(){
+  var t=elapsed(),rank;
+  if(S.scams===0&&S.hints===0&&t<240)rank="GOLD Scam Detective";
+  else if(S.scams<=2&&t<420)rank="SILVER Scam Spotter";
+  else rank="BRONZE Scam Survivor";
+  var r=show(''+
+  '<div style="text-align:center;font-size:50px" class="pop">&#127881;</div><h1>You escaped!</h1>'+
+  '<div class="rank" data-test="rank">'+rank+'</div>'+
+  '<div class="stats"><div class="stat"><b data-test="final-time">'+fmt(t)+'</b><span>time</span></div><div class="stat"><b>'+S.hints+'</b><span>hints</span></div><div class="stat"><b>'+S.scams+'</b><span>times scammed</span></div></div>'+
+  '<div class="poster"><h3>How to stay safe - PAUSE</h3><ol>'+
+  '<li>Never share your OTP or password.</li>'+
+  '<li>Pay only when you see the item.</li>'+
+  '<li>Too good to be true? It is a scam.</li>'+
+  '<li>Check the web address letter by letter.</li>'+
+  '<li>Check in the official app, not the link.</li></ol></div>'+
+  '<button class="btn gold" id="again" style="margin-top:14px" data-test="again">Play again</button>',
+  {cls:"win",light:true,label:"End screen - You escaped",id:"win"});
+  $("again").addEventListener("click",startScreen);
+  confetti();
+}
+
+/* ---------- hints ---------- */
+$("hintBtn").addEventListener("click",function(){
+  if(S.room>5)return;
+  var txt=S.room===5?"It starts with <b>P</b>. It means: stop for a moment and think.":ROOMS[S.room].hint;
+  var box=document.createElement("div");box.className="hintbox";box.setAttribute("data-test","hintbox");
+  box.innerHTML='<div class="hintcard"><h3>Hint</h3><p>'+txt+'</p><button class="btn primary" type="button">Got it (+30s)</button></div>';
+  $("wrap").appendChild(box);S.hints++;addPenalty(30);sfx.tap();
+  box.querySelector("button").addEventListener("click",function(){box.remove()});
+});
+$("muteBtn").addEventListener("click",function(){S.muted=!S.muted;this.innerHTML=S.muted?"&#128263;":"&#128266;"});
+$("restartTop").addEventListener("click",startScreen);
+
+/* ---------- confetti ---------- */
+function confetti(){
+  var c=$("confetti"),w=c.width=c.offsetWidth,h=c.height=c.offsetHeight,x=c.getContext("2d"),ps=[],cols=["#facc15","#f472b6","#60a5fa","#34d399","#f97316"];
+  for(var i=0;i<120;i++)ps.push({x:Math.random()*w,y:-Math.random()*h*.5,vx:(Math.random()-.5)*2,vy:2+Math.random()*3,r:4+Math.random()*5,c:cols[i%5],a:Math.random()*6});
+  var n=0;(function f(){x.clearRect(0,0,w,h);ps.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.a+=.1;x.save();x.translate(p.x,p.y);x.rotate(p.a);x.fillStyle=p.c;x.fillRect(-p.r/2,-p.r/4,p.r,p.r/2);x.restore()});if(++n<200)requestAnimationFrame(f);else x.clearRect(0,0,w,h)})();
+}
+
+/* ---------- fit phone to window (desktop) ---------- */
+function fit(){var s=$("scaler");if(window.innerWidth<=520){s.style.transform="";return}var avail=window.innerHeight-90;var k=Math.min(1,avail/812);s.style.transform="scale("+k+")";s.style.height=(812*k)+"px"}
+window.addEventListener("resize",fit);fit();
+startScreen();
+})();
+</script>
+</body>
+</html>
